@@ -1,0 +1,172 @@
+/* ═══════════════════════════════════════════════════════════════════
+   NetSentry Dashboard — Global Design System
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Brand palette (same as NetVisor accent) ── */
+  --sg-brand: #409eff;
+  --sg-brand-hover: #66b1ff;
+  --sg-brand-active: #3a8ee6;
+  --sg-brand-bg: #ecf5ff;
+
+  /* ── Sidebar (dark, Ant Design Pro style) ── */
+  --sg-sidebar-bg: #001529;
+  --sg-sidebar-fg: rgba(255, 255, 255, 0.65);
+  --sg-sidebar-fg-muted: rgba(255, 255, 255, 0.45);
+  --sg-sidebar-active: #1890ff;
+  --sg-sidebar-active-border: #1890ff;
+  --sg-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sg-sidebar-border: rgba(255, 255, 255, 0.06);
+
+  /* ── Header ── */
+  --sg-header-bg: linear-gradient(90deg, #2a88e6 0%, #1a78d6 100%);
+  --sg-header-height: 52px;
+
+  /* ── Content area ── */
+  --sg-content-bg: #f0f2f5;
+  --sg-card-bg: #ffffff;
+  --sg-card-radius: 6px;
+  --sg-card-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --sg-card-border: #e8e8e8;
+
+  /* ── Typography (matches NetVisor) ── */
+  --sg-text: #303133;
+  --sg-text-secondary: #606266;
+  --sg-text-muted: #909399;
+  --sg-font-size-base: 14px;
+
+  /* ── Status colors ── */
+  --sg-success: #10b981;
+  --sg-warning: #f59e0b;
+  --sg-danger: #ef4444;
+  --sg-info: #6366f1;
+
+  /* ── Spacing ── */
+  --sg-space-xs: 4px;
+  --sg-space-sm: 8px;
+  --sg-space-md: 16px;
+  --sg-space-lg: 24px;
+  --sg-space-xl: 32px;
+
+  /* ── Transitions ── */
+  --sg-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Element Plus overrides ── */
+  --el-color-primary: #409eff;
+  --el-color-primary-light-3: #66b1ff;
+  --el-color-primary-light-5: #a0cfff;
+  --el-color-primary-light-7: #c6e2ff;
+  --el-color-primary-light-8: #d9ecff;
+  --el-color-primary-light-9: #ecf5ff;
+  --el-color-primary-dark-2: #3a8ee6;
+  --el-border-radius-base: 4px;
+  --el-font-size-base: 14px;
+}
+
+/* ── Global reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--sg-font-size-base);
+  line-height: 1.5715;
+  color: var(--sg-text);
+  background: var(--sg-content-bg);
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+/* ── Page container ── */
+.page {
+  padding: var(--sg-space-lg) var(--sg-space-xl);
+}
+
+.page-title {
+  margin: 0 0 var(--sg-space-md) 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sg-text);
+  letter-spacing: -0.01em;
+}
+
+/* ── Utility classes ── */
+.muted {
+  color: var(--sg-text-muted);
+}
+
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono',
+    Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+/* ── Card styling (global override) ── */
+.el-card {
+  border-radius: var(--sg-card-radius) !important;
+  border: 1px solid var(--sg-card-border) !important;
+  box-shadow: var(--sg-card-shadow) !important;
+}
+
+/* ── Table styling ── */
+.el-table {
+  --el-table-border-color: #ebeef5;
+  --el-table-header-bg-color: #fafafa;
+  font-size: 14px;
+}
+.el-table th.el-table__cell {
+  font-weight: 600;
+  color: var(--sg-text);
+  background: #fafafa !important;
+}
+
+/* ── Button polish ── */
+.el-button {
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all var(--sg-transition);
+}
+.el-button--primary {
+  box-shadow: none;
+}
+
+/* ── Tag / Badge ── */
+.el-tag {
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ── Selection color ── */
+::selection {
+  background: var(--sg-brand-bg);
+  color: var(--sg-brand-active);
+}
