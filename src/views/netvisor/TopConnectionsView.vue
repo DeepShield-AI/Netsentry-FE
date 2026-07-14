@@ -59,6 +59,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import * as echarts from 'echarts'
+import { mockTopConnections } from './mock-data'
 
 const items = ref<any[]>([])
 const currentPage = ref(1)
@@ -120,7 +121,7 @@ function renderChart() {
 
 async function load() {
   try {
-    const data = await fetch('/traffic/top-connections?n=50').then(r => r.json())
+    const data = await fetch('/traffic/top-connections?n=50').then(r => r.json()).catch(() => mockTopConnections())
     const arr: any[] = Array.isArray(data) ? data : []
     items.value = arr.map(e => {
       // key format: "ip:port→ip:port" (Unicode arrow)

@@ -25,6 +25,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Refresh } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import { fmtBytes } from './api'
+import { mockTopDomains } from './mock-data'
 
 const loading = ref(false)
 const pieRef = ref<HTMLElement | null>(null)
@@ -47,7 +48,7 @@ function resizeCharts() { charts.forEach(c => c.resize()) }
 async function load() {
   loading.value = true
   try {
-    const data = await fetch('/traffic/top-domains?n=30').then(r => r.json())
+    const data = await fetch('/traffic/top-domains?n=30').then(r => r.json()).catch(() => mockTopDomains())
     const arr: any[] = Array.isArray(data) ? data : []
     items.value = arr.map(e => ({
       domain: e.key || '',
