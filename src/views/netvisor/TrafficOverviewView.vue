@@ -22,11 +22,11 @@
               </div>
               <div class="to-stat-v2-body">
                 <div class="to-stat-v2-metric">
-                  <span class="to-stat-v2-key">当前</span>
+                  <span class="to-stat-v2-key">上行</span>
                   <span class="to-stat-v2-val" id="toUpstream">&mdash;</span>
                 </div>
                 <div class="to-stat-v2-metric">
-                  <span class="to-stat-v2-key">峰值</span>
+                  <span class="to-stat-v2-key">下行</span>
                   <span class="to-stat-v2-val" id="toDownstream">&mdash;</span>
                 </div>
               </div>
@@ -207,6 +207,7 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 import * as echarts from 'echarts'
 import { api } from '@/api/client'
+import { mockTrafficBandwidth, mockStats, mockRecentFlows, mockTrafficBandwidthByCategory, mockTrafficOnlineUsers } from './mock-data'
 import PerformanceView from './PerformanceView.vue'
 
 const activeTab = ref<'traffic' | 'performance'>('traffic')
@@ -434,7 +435,7 @@ function upsertPieChart(id: string, container: HTMLElement, data: { name: string
     animation: true,
     animationDurationUpdate: 500,
     tooltip: { trigger: 'item', formatter: '{b}: {d}%' },
-    series: [{ type: 'pie', radius: ['28%', '58%'], label: { fontSize: 10 }, data: [] }],
+    series: [{ type: 'pie', radius: '65%', label: { fontSize: 10 }, data: [] }],
   })
   c.setOption({ series: [{ data }] })
 }
@@ -442,11 +443,11 @@ function upsertPieChart(id: string, container: HTMLElement, data: { name: string
 async function refresh() {
   try {
     const [bwResp, statsResp, flowsResp, catResp, usersResp] = await Promise.all([
-      api.trafficBandwidth(300).catch(() => [] as any[]),
-      api.stats().catch(() => ({} as any)),
-      api.recentFlows(500).catch(() => [] as any[]),
-      api.trafficBandwidthByCategory(300).catch(() => ({ categories: [], series: {} } as any)),
-      api.trafficOnlineUsers().catch(() => [] as any[]),
+      api.trafficBandwidth(300).catch(() => mockTrafficBandwidth()),
+      api.stats().catch(() => mockStats()),
+      api.recentFlows(500).catch(() => mockRecentFlows()),
+      api.trafficBandwidthByCategory(300).catch(() => mockTrafficBandwidthByCategory()),
+      api.trafficOnlineUsers().catch(() => mockTrafficOnlineUsers()),
     ])
 
     const samples: any[] = Array.isArray(bwResp) ? bwResp : []

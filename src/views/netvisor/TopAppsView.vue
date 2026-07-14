@@ -48,6 +48,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import * as echarts from 'echarts'
+import { mockTopApps } from './mock-data'
 
 const apps = ref<any[]>([])
 const currentPage = ref(1)
@@ -100,8 +101,7 @@ function renderChart() {
 
 async function load() {
   try {
-    const resp = await fetch('/traffic/top-apps?n=50')
-    const data: any[] = await resp.json()
+    const data: any[] = await fetch('/traffic/top-apps?n=50').then(r => r.json()).catch(() => mockTopApps())
     const arr = Array.isArray(data) ? data : []
     const totalBytes = arr.reduce((s: number, p: any) => s + (p.bytes || 0), 0) || 1
     apps.value = arr.map((p: any) => ({

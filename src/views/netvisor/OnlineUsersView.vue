@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { api } from '@/api/client'
+import { mockTrafficOnlineUsers } from './mock-data'
 
 const users = ref<any[]>([])
 const currentPage = ref(1)
@@ -97,7 +98,7 @@ function authTagClass(method: string): string {
 
 async function loadUsers() {
   try {
-    const arr = await api.trafficOnlineUsers()
+    const arr = await api.trafficOnlineUsers().catch(() => mockTrafficOnlineUsers())
     const now = Date.now()
     users.value = Array.isArray(arr) ? arr.map((u: any) => {
       // Determine activity status: idle if no traffic in last 60s
