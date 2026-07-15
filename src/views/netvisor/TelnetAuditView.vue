@@ -78,7 +78,7 @@
                 <td style="font-size:12px">{{ row.loginName }}</td>
                 <td style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px" :title="row.command">{{ row.command }}</td>
                 <td>
-                  <span class="link-btn pkt-dropdown-trigger" @click.stop="togglePacketMenu($event, row)">数据包</span>
+                  <span class="link-btn" @click.stop="openPacketPopup(row)">数据包</span>
                 </td>
               </tr>
             </tbody>
@@ -106,15 +106,6 @@
           </div>
         </div>
 
-        <!-- 数据包下拉菜单 -->
-        <div v-if="packetMenuVisible" class="packet-context-menu" :style="{ left: packetMenuX + 'px', top: packetMenuY + 'px' }" @click.stop>
-          <div class="packet-menu-item" @click="openPacketPopup(packetMenuRow)"><el-icon><InfoFilled /></el-icon> 报文分析</div>
-          <div class="packet-menu-item" @click="openPacketPlayPopup(packetMenuRow)"><el-icon><VideoPlay /></el-icon> 报文播放</div>
-          <div class="packet-menu-item" @click="downloadPacket(packetMenuRow)"><el-icon><Download /></el-icon> 报文下载</div>
-          <div class="packet-menu-item" @click="downloadContent(packetMenuRow)"><el-icon><Download /></el-icon> 内容下载</div>
-          <div class="packet-menu-item" @click="queryTailPacket(packetMenuRow)"><el-icon><InfoFilled /></el-icon> 尾包查询</div>
-          <div class="packet-menu-item" @click="stitchSession(packetMenuRow)"><el-icon><InfoFilled /></el-icon> 会话缝合</div>
-        </div>
       </div>
 
       <!-- ==================== Telnet概况 Tab ==================== -->
@@ -460,6 +451,16 @@
             </label>
           </div>
         </div>
+
+        <!-- 数据包下拉菜单 -->
+        <div v-if="packetMenuVisible" class="packet-context-menu" :style="{ left: packetMenuX + 'px', top: packetMenuY + 'px' }" @click.stop>
+          <div class="packet-menu-item" @click="openPacketPopup(packetMenuRow)"><el-icon><InfoFilled /></el-icon> 报文分析</div>
+          <div class="packet-menu-item" @click="openPacketPlayPopup(packetMenuRow)"><el-icon><VideoPlay /></el-icon> 报文播放</div>
+          <div class="packet-menu-item" @click="downloadPacket(packetMenuRow)"><el-icon><Download /></el-icon> 报文下载</div>
+          <div class="packet-menu-item" @click="downloadContent(packetMenuRow)"><el-icon><Download /></el-icon> 内容下载</div>
+          <div class="packet-menu-item" @click="queryTailPacket(packetMenuRow)"><el-icon><InfoFilled /></el-icon> 尾包查询</div>
+          <div class="packet-menu-item" @click="stitchSession(packetMenuRow)"><el-icon><InfoFilled /></el-icon> 会话缝合</div>
+        </div>
       </div>
     </div>
 
@@ -697,83 +698,53 @@
     </el-dialog>
 
     <!-- ==================== 报文分析弹窗 ==================== -->
-    <el-dialog
-      v-model="packetVisible"
-      title="报文分析 -> Telnet"
-      width="95%"
-      top="3vh"
-      destroy-on-close
-      class="hd-detail-dialog"
-    >
-      <!-- 顶部 Tab 栏 -->
-      <div style="display:flex;align-items:center;border-bottom:1px solid #e4e7ed;margin-bottom:12px">
-        <span
-          v-for="tab in pktTabs"
-          :key="tab.key"
-          :class="pktActiveTab === tab.key ? 'pkt-tab-active' : 'pkt-tab'"
-          style="margin-right:20px"
-          @click="pktActiveTab = tab.key"
-        >{{ tab.label }}</span>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12px;color:#909399">
-          <span>应用协议: Telnet</span>
-          <span style="cursor:pointer;color:#409eff"><el-icon><Download /></el-icon> 报文下载</span>
-          <span style="cursor:pointer;color:#409eff"><el-icon><Download /></el-icon> 内容下载</span>
+    <el-dialog v-model="packetVisible" title="报文分析->Telnet" width="95%" top="3vh" destroy-on-close class="hd-detail-dialog">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;gap:16px">
+          <span v-for="t in packetTabs" :key="t.key" style="font-size:13px;cursor:pointer;padding-bottom:4px;border-bottom:2px solid transparent" :style="{ color: packetActiveTab === t.key ? '#409eff' : '#909399', borderColor: packetActiveTab === t.key ? '#409eff' : 'transparent' }" @click="packetActiveTab = t.key">{{ t.label }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:13px;color:#606266">应用协议: <b>{{ packetData.protocol }}</b></span>
+          <button style="border:none;background:none;cursor:pointer;color:#409eff;font-size:13px" @click="downloadPacketFromPopup"><el-icon><Download /></el-icon> 报文下载</button>
+          <button style="border:none;background:none;cursor:pointer;color:#409eff;font-size:13px" @click="downloadContentFromPopup"><el-icon><Download /></el-icon> 内容下载</button>
         </div>
       </div>
 
-      <!-- 报文解析 Tab -->
-      <div v-if="pktActiveTab === 'parse'">
-        <!-- 过滤器 -->
-        <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px">
-          <span style="font-size:12px;color:#909399">报文显示过滤器</span>
-          <input class="ou-toolbar-input tdh-filter-input" v-model="pktFilter" placeholder="" style="width:200px;height:24px;font-size:12px" />
-          <select style="margin-left:auto;height:24px;border:1px solid #dcdfe6;border-radius:3px;font-size:12px;padding:0 4px">
-            <option>TOP 100</option>
+      <!-- 报文解析 -->
+      <div v-if="packetActiveTab === 'parse'">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <el-input v-model="packetFilterText" class="ou-toolbar-input" placeholder="报文显示过滤器" :prefix-icon="Search" style="flex:1" />
+          <select v-model="packetTopN" class="ou-toolbar-select" style="width:100px">
+            <option value="100">TOP 100</option>
+            <option value="200">TOP 200</option>
+            <option value="500">TOP 500</option>
           </select>
         </div>
-
-        <!-- 数据包列表 -->
-        <div style="border:1px solid #e4e7ed;border-radius:4px;overflow:hidden">
-          <table class="ou-table audit-table" style="margin:0">
-            <thead>
-              <tr>
-                <th style="width:40px">序号 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>时间 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>源地址 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>目标地址 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>网络协议 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>长度 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>详情 <el-icon class="sort-icon"><Sort /></el-icon></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(pkt, idx) in packetData.list"
-                :key="idx"
-                :class="{ 'pkt-row-selected': pktSelectedIdx === idx }"
-                @click="selectPacket(idx)"
-                style="cursor:pointer"
-              >
-                <td>{{ idx + 1 }}</td>
-                <td style="white-space:nowrap">{{ pkt.time }}</td>
-                <td style="font-size:12px">{{ pkt.src }}</td>
-                <td style="font-size:12px">{{ pkt.dst }}</td>
-                <td style="font-size:12px">{{ pkt.protocol }}</td>
-                <td class="ou-num">{{ pkt.length }}</td>
-                <td style="font-size:12px;color:#909399">{{ pkt.detail }}</td>
-              </tr>
-              <tr v-if="packetData.list.length === 0">
-                <td colspan="7" class="ou-empty">无数据</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- 详情面板 -->
-        <div v-if="pktSelectedIdx >= 0" style="margin-top:12px;border:1px solid #e4e7ed;border-radius:4px;padding:12px;background:#fafafa">
-          <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#303133">
-            <el-icon style="margin-right:4px"><InfoFilled /></el-icon> 数据包详情
-          </div>
+        <table class="ou-table" style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:#f5f7fa">
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">序号 <el-icon class="sort-icon"><Sort /></el-icon></th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">时间 <el-icon class="sort-icon"><Sort /></el-icon></th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">源地址 <el-icon class="sort-icon"><Sort /></el-icon></th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">目标地址 <el-icon class="sort-icon"><Sort /></el-icon></th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">网络协议 <el-icon class="sort-icon"><Sort /></el-icon></th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">长度 <el-icon class="sort-icon"><Sort /></el-icon></th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">详情 <el-icon class="sort-icon"><Sort /></el-icon></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(pkt, i) in packetData.packets" :key="i" :style="{background: i === 0 ? '#e8f5e9' : i === 1 ? '#e3f2fd' : 'transparent'}" @click="packetSelectedIdx = i; packetExpandedRow = i" :class="{ 'pkt-row-selected': packetSelectedIdx === i }">
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ i + 1 }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ pkt.time }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ pkt.src }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ pkt.dst }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ pkt.protocol }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ pkt.length }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5;font-size:11px">{{ pkt.detail }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-if="packetExpandedRow >= 0" style="margin-top:12px;padding:8px 12px;background:#fff;border:1px solid #ebeef5;border-radius:4px;font-size:12px">
           <div v-for="(item, idx) in packetData.detailTree" :key="idx" style="margin-bottom:4px">
             <span style="color:#409eff;cursor:pointer;user-select:none" @click="item.expanded = !item.expanded">{{ item.expanded ? '▼' : '▶' }}</span>
             <span style="margin-left:4px;color:#303133">{{ item.label }}</span>
@@ -782,64 +753,153 @@
               <span style="margin-left:4px">{{ sub.label }}</span>
             </div>
           </div>
+        </div>
+        <div v-if="packetExpandedRow >= 0" style="margin-top:12px;background:#1e1e1e;color:#d4d4d4;padding:12px;border-radius:4px;font-family:monospace;font-size:12px;overflow-x:auto">
+          <div v-for="(line, i) in packetData.hexDump" :key="i">{{ line }}</div>
+        </div>
+      </div>
 
-          <!-- Hex Dump -->
-          <div style="margin-top:12px;font-family:monospace;font-size:12px;background:#fff;padding:8px;border:1px solid #e4e7ed;border-radius:4px">
-            <div v-for="(line, idx) in hexDumpLines" :key="idx" style="display:flex">
-              <span style="color:#909399;width:60px">{{ line.offset }}</span>
-              <span style="color:#303133;width:200px">{{ line.hex }}</span>
-              <span style="color:#606266">{{ line.ascii }}</span>
+      <!-- 报文交互 -->
+      <div v-if="packetActiveTab === 'interaction'">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px">
+          <div style="padding:8px;background:#f5f7fa;border-radius:4px;font-size:12px"><div style="color:#909399">源IP</div><div style="color:#303133;margin-top:4px;font-weight:500">{{ packetData.packets[0]?.src || '-' }}</div></div>
+          <div style="padding:8px;background:#f5f7fa;border-radius:4px;font-size:12px"><div style="color:#909399">目标IP</div><div style="color:#303133;margin-top:4px;font-weight:500">{{ packetData.packets[0]?.dst || '-' }}</div></div>
+          <div style="padding:8px;background:#f5f7fa;border-radius:4px;font-size:12px"><div style="color:#909399">源端口</div><div style="color:#303133;margin-top:4px;font-weight:500">{{ packetData.packets[0]?.src?.split(':')[1] || '-' }}</div></div>
+          <div style="padding:8px;background:#f5f7fa;border-radius:4px;font-size:12px"><div style="color:#909399">目标端口</div><div style="color:#303133;margin-top:4px;font-weight:500">23</div></div>
+        </div>
+        <div style="margin-bottom:12px;font-size:13px;color:#303133;font-weight:500">交互过程</div>
+        <div style="display:flex;gap:16px;margin-bottom:12px">
+          <div style="flex:1">
+            <div style="font-size:12px;color:#606266;margin-bottom:6px">Source</div>
+            <div style="background:#1e1e1e;color:#d4d4d4;padding:12px;border-radius:4px;font-family:monospace;font-size:12px;overflow-x:auto;min-height:120px">
+              <div v-for="(line, i) in interactionSourceBlocks" :key="i">{{ line }}</div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:12px;color:#606266;margin-bottom:6px">Destination</div>
+            <div style="background:#1e1e1e;color:#d4d4d4;padding:12px;border-radius:4px;font-family:monospace;font-size:12px;overflow-x:auto;min-height:120px">
+              <div v-for="(line, i) in interactionDstBlocks" :key="i">{{ line }}</div>
             </div>
           </div>
         </div>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px">
+          <button class="ou-btn ou-btn-sm" :disabled="interactionPage <= 1" @click="interactionPage--">上一页</button>
+          <span style="font-size:12px;color:#606266">{{ interactionPage }} / {{ Math.max(1, Math.ceil(interactionTotal / 20)) }}</span>
+          <button class="ou-btn ou-btn-sm" :disabled="interactionPage >= Math.max(1, Math.ceil(interactionTotal / 20))" @click="interactionPage++">下一页</button>
+        </div>
       </div>
 
-      <!-- 报文交互 Tab -->
-      <div v-if="pktActiveTab === 'interaction'">
-        <div style="text-align:center;padding:40px;color:#909399">
+      <!-- 元数据 -->
+      <div v-if="packetActiveTab === 'metadata'">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+          <span style="font-size:13px;color:#606266">展示方式</span>
+          <select v-model="metadataDisplayMode" class="ou-toolbar-select" style="width:120px">
+            <option value="attr">按属性</option>
+            <option value="raw">原始</option>
+          </select>
+        </div>
+        <div style="text-align:center;padding:60px 0;color:#909399">
           <el-icon :size="48"><DataAnalysis /></el-icon>
-          <div style="margin-top:12px">报文交互（Mock）</div>
+          <div style="margin-top:12px">暂无元数据</div>
         </div>
       </div>
 
-      <!-- 元数据 Tab -->
-      <div v-if="pktActiveTab === 'metadata'">
-        <div style="text-align:center;padding:40px;color:#909399">
-          <el-icon :size="48"><DataAnalysis /></el-icon>
-          <div style="margin-top:12px">元数据（Mock）</div>
+      <!-- 证书分析 -->
+      <div v-if="packetActiveTab === 'cert'">
+        <div style="text-align:center;padding:60px 0;color:#909399">
+          <el-icon :size="48"><InfoFilled /></el-icon>
+          <div style="margin-top:12px">暂无证书信息</div>
         </div>
       </div>
 
-      <!-- 证书分析 Tab -->
-      <div v-if="pktActiveTab === 'cert'">
-        <div style="text-align:center;padding:40px;color:#909399">
-          <el-icon :size="48"><DataAnalysis /></el-icon>
-          <div style="margin-top:12px">证书分析（Mock）</div>
+      <!-- 报文播放 -->
+      <div v-if="packetActiveTab === 'playback'">
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#606266">
+            网卡
+            <select v-model="playNic" class="ou-toolbar-select" style="width:160px">
+              <option value="eth0">eth0</option>
+              <option value="lo">lo</option>
+            </select>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#606266">
+            播放次数
+            <input v-model="playCount" type="number" min="1" class="ou-toolbar-input" style="width:80px" />
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#606266">
+            速度选择
+            <select v-model="playSpeed" class="ou-toolbar-select" style="width:100px">
+              <option value="1">1x</option>
+              <option value="2">2x</option>
+              <option value="0.5">0.5x</option>
+            </select>
+          </label>
+          <button class="ou-btn ou-btn-primary" @click="startPacketPlayback"><el-icon><VideoPlay /></el-icon> 开始播放</button>
         </div>
+        <table class="ou-table" style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:#f5f7fa">
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">时间</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">源地址</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">目标地址</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">长度</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, i) in playInfoItems" :key="i">
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ item.time }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ item.src }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ item.dst }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ item.length }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ item.status }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- 报文播放 Tab -->
-      <div v-if="pktActiveTab === 'play'">
-        <div style="text-align:center;padding:40px;color:#909399">
-          <el-icon :size="48"><VideoPlay /></el-icon>
-          <div style="margin-top:12px">报文播放（Mock）</div>
+      <!-- 时序图 -->
+      <div v-if="packetActiveTab === 'timeline'">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="font-size:13px;color:#606266">时间间隔阈值 (ms)</span>
+          <input v-model="timeGapThreshold" type="number" min="0" class="ou-toolbar-input" style="width:100px" />
         </div>
-      </div>
-
-      <!-- 时序图 Tab -->
-      <div v-if="pktActiveTab === 'sequence'">
-        <div style="text-align:center;padding:40px;color:#909399">
-          <el-icon :size="48"><DataAnalysis /></el-icon>
-          <div style="margin-top:12px">时序图（Mock）</div>
+        <table class="ou-table" style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px">
+          <thead>
+            <tr style="background:#f5f7fa">
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">序号</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">时间</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">源</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">目标</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">协议</th>
+              <th style="padding:6px 8px;text-align:left;border:1px solid #ebeef5">信息</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, i) in timelineData" :key="i">
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ row.no }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ row.time }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ row.src }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ row.dst }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ row.protocol }}</td>
+              <td style="padding:6px 8px;border:1px solid #ebeef5">{{ row.info }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-bottom:12px;padding:8px 12px;background:#fff;border:1px solid #ebeef5;border-radius:4px;font-size:12px">
+          <div v-for="(node, idx) in timelineProtocolTree" :key="idx" style="margin-bottom:4px">
+            <span style="color:#409eff;cursor:pointer;user-select:none" @click="node.expanded = !node.expanded">{{ node.expanded ? '▼' : '▶' }}</span>
+            <span style="margin-left:4px;color:#303133">{{ node.label }}</span>
+          </div>
         </div>
-      </div>
-    </el-dialog>
-
-    <!-- ==================== 报文播放弹窗 ==================== -->
-    <el-dialog v-model="packetPlayVisible" title="报文播放" width="70%" destroy-on-close class="hd-detail-dialog">
-      <div style="text-align:center;padding:40px;color:#909399">
-        <el-icon :size="48"><VideoPlay /></el-icon>
-        <div style="margin-top:12px">报文播放功能（Mock）</div>
+        <div style="background:#1e1e1e;color:#d4d4d4;padding:12px;border-radius:4px;font-family:monospace;font-size:12px;overflow-x:auto;margin-bottom:12px">
+          <div v-for="(line, i) in timelineHexDump" :key="i">{{ line }}</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px">
+          <button class="ou-btn ou-btn-sm" :disabled="timelinePage <= 1" @click="timelinePage--">上一页</button>
+          <span style="font-size:12px;color:#606266">{{ timelinePage }}</span>
+          <button class="ou-btn ou-btn-sm" @click="timelinePage++">下一页</button>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -856,7 +916,7 @@ import {
 } from 'echarts/components'
 import {
   Search, Download, Sort, Filter, Close, DataAnalysis,
-  InfoFilled, VideoPlay, Clock
+  InfoFilled, VideoPlay
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import './nv-shared.css'
@@ -1202,131 +1262,159 @@ function openSessionDiagPopup(value: string, type: 'src' | 'dst') {
   }
 }
 
-// ── 报文分析弹窗 ──
+// ── 报文分析弹窗 ─
 const packetVisible = ref(false)
-
-const pktTabs = [
-  { key: 'parse', label: '报文解析' },
-  { key: 'interaction', label: '报文交互' },
-  { key: 'metadata', label: '元数据' },
-  { key: 'cert', label: '证书分析' },
-  { key: 'play', label: '报文播放' },
-  { key: 'sequence', label: '时序图' },
-]
-const pktActiveTab = ref('parse')
-const pktFilter = ref('')
-const pktSelectedIdx = ref(-1)
-
-interface PktItem {
-  time: string; src: string; dst: string; protocol: string; length: number; detail: string
-}
-
-const packetData = reactive({
-  list: [] as PktItem[],
-  detailTree: [] as { label: string; expanded: boolean; children: { label: string; expanded: boolean }[] }[],
-})
-
-const hexDumpLines = ref<any[]>([])
-
-function openPacketPopup(row: RtRow | HtRow) {
-  hidePacketMenu()
-  pktActiveTab.value = 'parse'
-  pktSelectedIdx.value = -1
-  packetVisible.value = true
-
-  // 生成mock数据包列表
-  const baseTime = new Date('2026-07-20T15:00:50')
-  packetData.list = [
-    { time: '0.000000', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TCP', length: 66, detail: '44217 -> 22 SYN, Seq=0 Win=64636 Len=0 MSS=1360 SACK_PERM=1' },
-    { time: '0.000086', src: '101.6.4.191', dst: '166.111.9.181', protocol: 'TCP', length: 66, detail: '22 -> 44217 SYN, ACK, Seq=0 Ack=1 Win=1096 Len=0 MSS=1360 SACK_PERM=1' },
-    { time: '0.001483', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TCP', length: 60, detail: '44217 -> 22 ACK, Seq=1 Ack=1 Win=66280 Len=0' },
-    { time: '0.014140', src: '101.6.4.191', dst: '166.111.9.181', protocol: 'TELNET', length: 72, detail: 'Telnet Data ...' },
-    { time: '0.076733', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TCP', length: 60, detail: '44217 -> 22 ACK, Seq=1 Ack=19 Win=66280 Len=0' },
-    { time: '0.129968', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TELNET', length: 79, detail: 'Telnet Data ...' },
-  ]
-
-  // 生成详情树
-  packetData.detailTree = [
+const packetSelectedIdx = ref(0)
+const packetData = ref({
+  protocol: 'Telnet',
+  packets: [
+    { time: '0.000000', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TCP', length: '66', detail: '44217 -> 23 SYN, Seq=0 Win=64636 Len=0 MSS=1360 SACK_PERM=1' },
+    { time: '0.000086', src: '101.6.4.191', dst: '166.111.9.181', protocol: 'TCP', length: '66', detail: '23 -> 44217 SYN, ACK, Seq=0 Ack=1 Win=1096 Len=0 MSS=1360 SACK_PERM=1' },
+    { time: '0.001483', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TCP', length: '60', detail: '44217 -> 23 ACK, Seq=1 Ack=1 Win=66280 Len=0' },
+    { time: '0.014140', src: '101.6.4.191', dst: '166.111.9.181', protocol: 'TELNET', length: '72', detail: 'Telnet Data ...' },
+    { time: '0.076733', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TCP', length: '60', detail: '44217 -> 23 ACK, Seq=1 Ack=19 Win=66280 Len=0' },
+    { time: '0.129968', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TELNET', length: '79', detail: 'Telnet Data ...' },
+  ],
+  detailTree: [
     {
       label: 'Frame 1: 66 bytes on wire (528 bits), 66 bytes captured (528 bits)',
       expanded: false,
       children: [
-        { label: 'Frame Number: 1', expanded: false },
-        { label: 'Frame Length: 66 bytes', expanded: false },
-        { label: 'Capture Time: 2026-07-20 15:00:50.000000', expanded: false },
+        { label: 'Frame Number: 1', expanded: false, children: [] as any[] },
+        { label: 'Frame Length: 66 bytes', expanded: false, children: [] as any[] },
+        { label: 'Capture Time: 2026-07-20 15:00:50.000000', expanded: false, children: [] as any[] },
       ],
     },
     {
       label: 'Ethernet II, Src: 54:2b:de:6d:10:ae, Dst: 30:80:9b:8d:90:01',
       expanded: false,
       children: [
-        { label: 'Destination: 30:80:9b:8d:90:01', expanded: false },
-        { label: 'Source: 54:2b:de:6d:10:ae', expanded: false },
-        { label: 'Type: IPv4 (0x0800)', expanded: false },
+        { label: 'Destination: 30:80:9b:8d:90:01', expanded: false, children: [] as any[] },
+        { label: 'Source: 54:2b:de:6d:10:ae', expanded: false, children: [] as any[] },
+        { label: 'Type: IPv4 (0x0800)', expanded: false, children: [] as any[] },
       ],
     },
     {
       label: 'Internet Protocol Version 4, Src: 166.111.9.181, Dst: 101.6.4.191',
       expanded: false,
       children: [
-        { label: 'Version: 4', expanded: false },
-        { label: 'Header Length: 20 bytes', expanded: false },
-        { label: 'Source Address: 166.111.9.181', expanded: false },
-        { label: 'Destination Address: 101.6.4.191', expanded: false },
+        { label: 'Version: 4', expanded: false, children: [] as any[] },
+        { label: 'Header Length: 20 bytes', expanded: false, children: [] as any[] },
+        { label: 'Source Address: 166.111.9.181', expanded: false, children: [] as any[] },
+        { label: 'Destination Address: 101.6.4.191', expanded: false, children: [] as any[] },
       ],
     },
     {
       label: 'Transmission Control Protocol, Src Port: 44217, Dst Port: 23',
       expanded: false,
       children: [
-        { label: 'Source Port: 44217', expanded: false },
-        { label: 'Destination Port: 23 (Telnet)', expanded: false },
-        { label: 'Flags: SYN', expanded: false },
+        { label: 'Source Port: 44217', expanded: false, children: [] as any[] },
+        { label: 'Destination Port: 23 (Telnet)', expanded: false, children: [] as any[] },
+        { label: 'Flags: SYN', expanded: false, children: [] as any[] },
       ],
     },
+  ],
+  hexDump: [
+    '0000  30 80 9b 8d  90 01 54 2b  de 6d 10 ae  08 00 45 00    0...T+..m....E.',
+    '0010  00 34 9a 3f  40 00 74 06  49 9b e6 6f  09 b5 65 06    .4.?@.t.I..o..e.',
+    '0020  04 bf ac b9  00 17 13 54  df 17 00 00  00 00 80 02    .......T........',
+    '0030  ff ff b6 46  00 00 02 04  05 50 01 03  03 08 01 01    ...F....P.......',
+    '0040  04 02                                                   ..'
   ]
+})
 
-  // 生成Hex Dump
-  hexDumpLines.value = [
-    { offset: '0000', hex: '30 80 9b 8d  90 01 54 2b  de 6d 10 ae  08 00 45 00', ascii: '0...T+..m...E.' },
-    { offset: '0010', hex: '00 34 9a 3f  40 00 74 06  49 9b e6 6f  09 b5 65 06', ascii: '.4.?@.t.I..o..e.' },
-    { offset: '0020', hex: '04 bf ac b9  00 17 13 54  df 17 00 00  00 00 80 02', ascii: '.......T........' },
-    { offset: '0030', hex: 'ff ff b6 46  00 00 02 04  05 50 01 03  03 08 01 01', ascii: '...F....P.......' },
-    { offset: '0040', hex: '04 02', ascii: '..' },
-  ]
-}
+const packetTabs = [
+  { key: 'parse', label: '报文解析' },
+  { key: 'interaction', label: '报文交互' },
+  { key: 'metadata', label: '元数据' },
+  { key: 'cert', label: '证书分析' },
+  { key: 'playback', label: '报文播放' },
+  { key: 'timeline', label: '时序图' },
+]
+const packetActiveTab = ref('parse')
+const packetFilterText = ref('')
+const packetTopN = ref('100')
+const packetExpandedRow = ref<number>(0)
 
-function selectPacket(idx: number) {
-  pktSelectedIdx.value = idx
-}
+const interactionSourceBlocks = ref<string[]>([
+  '00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00',
+  '11 11 11 11  11 11 11 11  11 11 11 11  11 11 11 11'
+])
+const interactionDstBlocks = ref<string[]>([
+  '00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00',
+  '22 22 22 22  22 22 22 22  22 22 22 22  22 22 22 22'
+])
+const interactionPage = ref(1)
+const interactionTotal = ref(40)
 
-function openPacketPlayPopup(row: RtRow) {
+const metadataDisplayMode = ref('attr')
+
+const playNic = ref('eth0')
+const playCount = ref(1)
+const playSpeed = ref('1')
+const playInfoItems = ref([
+  { time: '0.000000', src: '166.111.9.181', dst: '101.6.4.191', length: '66', status: '待播放' }
+])
+
+const timeGapThreshold = ref(100)
+const timelinePage = ref(1)
+const timelineData = ref([
+  { no: 1, time: '0.000000', src: '166.111.9.181', dst: '101.6.4.191', protocol: 'TCP', info: '44217 -> 23 SYN' }
+])
+const timelineProtocolTree = ref([
+  { label: 'Frame 1: 66 bytes', expanded: false, children: [] as any[] }
+])
+const timelineHexDump = ref([
+  '0000  30 80 9b 8d  90 01 54 2b  de 6d 10 ae  08 00 45 00'
+])
+
+function downloadPacketFromPopup() { ElMessage.info('报文下载功能（Mock）') }
+function downloadContentFromPopup() { ElMessage.info('内容下载功能（Mock）') }
+function startPacketPlayback() { ElMessage.info(`开始播放：网卡 ${playNic.value}，次数 ${playCount.value}，速度 ${playSpeed.value}x（Mock）`) }
+
+function openPacketPopup(row: RtRow | HtRow | null) {
   hidePacketMenu()
-  packetPlayVisible.value = true
+  if (!row) return
+  packetData.value.protocol = 'Telnet'
+  packetSelectedIdx.value = 0
+  packetExpandedRow.value = 0
+  packetActiveTab.value = 'parse'
+  packetVisible.value = true
 }
 
-function downloadPacket(row: RtRow) {
+function openPacketPlayPopup(row: RtRow | HtRow | null) {
   hidePacketMenu()
+  if (!row) return
+  packetData.value.protocol = 'Telnet'
+  packetSelectedIdx.value = 0
+  packetExpandedRow.value = 0
+  packetActiveTab.value = 'playback'
+  packetVisible.value = true
+}
+
+function downloadPacket(row: RtRow | HtRow | null) {
+  hidePacketMenu()
+  if (!row) return
   ElMessage.info('报文下载功能（Mock）')
 }
 
-function downloadContent(row: RtRow) {
+function downloadContent(row: RtRow | HtRow | null) {
   hidePacketMenu()
+  if (!row) return
   ElMessage.info('内容下载功能（Mock）')
 }
 
-function queryTailPacket(row: RtRow) {
+function queryTailPacket(row: RtRow | HtRow | null) {
   hidePacketMenu()
+  if (!row) return
   ElMessage.info('尾包查询功能（Mock）')
 }
 
-function stitchSession(row: RtRow) {
+function stitchSession(row: RtRow | HtRow | null) {
   hidePacketMenu()
+  if (!row) return
   ElMessage.info('会话缝合功能（Mock）')
 }
-
-// ── 报文播放弹窗 ──
-const packetPlayVisible = ref(false)
 </script>
 
 <style scoped>
