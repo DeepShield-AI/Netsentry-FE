@@ -154,6 +154,7 @@
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 import * as echarts from 'echarts'
 import { api } from '@/api/client'
+import { mockSystemInfo, mockStats, mockTrafficOnlineUsers, mockTrafficBandwidth } from './mock-data'
 
 // Reactive data
 const systemTime = ref('—')
@@ -245,10 +246,10 @@ function updateChart(c: echarts.ECharts, buf: { t: string; v: number }[]) {
 async function refresh() {
   try {
     const [sysResp, statsResp, onlineResp, bwResp] = await Promise.all([
-      api.systemInfo().catch(() => null),
-      api.stats().catch(() => ({} as any)),
-      api.trafficOnlineUsers().catch(() => [] as any[]),
-      api.trafficBandwidth(ppsBuf.length === 0 ? 60 : 10).catch(() => [] as any[]),
+      api.systemInfo().catch(() => mockSystemInfo()),
+      api.stats().catch(() => mockStats()),
+      api.trafficOnlineUsers().catch(() => mockTrafficOnlineUsers()),
+      api.trafficBandwidth(ppsBuf.length === 0 ? 60 : 10).catch(() => mockTrafficBandwidth()),
     ])
     const sys: any = sysResp || {}
     const s: any = statsResp || {}
