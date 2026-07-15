@@ -109,7 +109,7 @@
                 </div>
               </div>
             </div>
-            <div class="to-chart-panel to-chart-panel-narrow" data-chart="overview">
+            <div class="to-chart-panel to-chart-panel-narrow" data-chart="overview" @dblclick="openWindow('overview')">
               <div class="to-panel-head">
                 <div class="to-panel-head-left">
                   <h3 class="to-panel-title">流量概况</h3>
@@ -152,7 +152,7 @@
                 </div>
               </div>
             </div>
-            <div class="to-chart-panel to-chart-panel-narrow to-chart-panel-pie">
+            <div class="to-chart-panel to-chart-panel-narrow to-chart-panel-pie" @dblclick="openWindow('traffic-dist')">
               <div class="to-panel-head">
                 <div class="to-panel-head-left">
                   <h3 class="to-panel-title">流量分布</h3>
@@ -185,7 +185,7 @@
                 </div>
               </div>
             </div>
-            <div class="to-chart-panel to-chart-panel-narrow to-chart-panel-pie">
+            <div class="to-chart-panel to-chart-panel-narrow to-chart-panel-pie" @dblclick="openWindow('conn-dist')">
               <div class="to-panel-head">
                 <div class="to-panel-head-left">
                   <h3 class="to-panel-title">连接分布</h3>
@@ -665,6 +665,11 @@ async function refresh() {
   } catch (err) {
     console.error('traffic-overview refresh failed', err)
   }
+}
+
+function openWindow(type: string) {
+  const url = `${window.location.origin}${window.location.pathname}#/nv/protocol-group-status?type=${type}`
+  window.open(url, '_blank', 'width=1200,height=800')
 }
 
 function handleResize() { charts.forEach(c => c.resize()) }
