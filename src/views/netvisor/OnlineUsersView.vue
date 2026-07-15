@@ -2,18 +2,18 @@
   <div class="nv-border-card">
     <div class="nv-tabs-header">
       <div class="nv-tabs-nav" role="tablist">
-        <button type="button" class="nv-tab" :class="{ active: activeTab === 'top' }" role="tab" @click="activeTab = 'top'">Top应用</button>
-        <button type="button" class="nv-tab" :class="{ active: activeTab === 'protocol' }" role="tab" @click="activeTab = 'protocol'">协议统计</button>
+        <button type="button" class="nv-tab" :class="{ active: activeTab === 'online' }" role="tab" @click="activeTab = 'online'">在线用户</button>
+        <button type="button" class="nv-tab" :class="{ active: activeTab === 'traffic' }" role="tab" @click="activeTab = 'traffic'">流量统计</button>
       </div>
     </div>
     <div class="nv-tabs-body">
-      <!-- Top应用 Tab -->
-      <div v-show="activeTab === 'top'" class="to-dashboard-scroll">
+      <!-- 在线用户 Tab -->
+      <div v-show="activeTab === 'online'" class="to-dashboard-scroll">
         <div class="to-dashboard">
           <!-- 过滤栏面板 -->
           <div class="to-chart-row">
-            <div class="to-chart-panel to-chart-panel-full" data-chart="filter-top">
-              <!-- 过滤条件：只保留自动刷新和搜索 -->
+            <div class="to-chart-panel to-chart-panel-full" data-chart="filter-online">
+              <!-- 过滤条件 -->
               <div class="to-filter-container">
                 <div class="to-filter-row-simple">
                   <label class="to-filter-item">
@@ -28,41 +28,24 @@
                   </label>
 
                   <label class="to-filter-item">
-                    <span class="to-filter-label">网桥链路</span>
-                    <select class="to-filter-select" v-model="linkFilter">
-                      <option value="all">所有链路</option>
-                      <option value="eth0">eth0</option>
-                      <option value="eth1">eth1</option>
-                      <option value="br0">br0</option>
-                      <option value="br1">br1</option>
+                    <span class="to-filter-label">用户类型</span>
+                    <select class="to-filter-select" v-model="userType">
+                      <option value="all">所有类型</option>
+                      <option value="normal">普通用户</option>
+                      <option value="vip">VIP用户</option>
+                      <option value="guest">访客</option>
                     </select>
                   </label>
 
                   <label class="to-filter-item">
-                    <span class="to-filter-label">协议类型</span>
-                    <select class="to-filter-select" v-model="protocolType">
-                      <option value="IPv4">IPv4</option>
-                      <option value="IPv6">IPv6</option>
-                      <option value="all">全部</option>
-                    </select>
-                  </label>
-
-                  <label class="to-filter-item">
-                    <span class="to-filter-label">应用协议</span>
-                    <select class="to-filter-select" v-model="appProtocol">
-                      <option value="any">任意协议</option>
-                      <option value="HTTP">HTTP</option>
-                      <option value="HTTPS">HTTPS</option>
-                      <option value="TCP">TCP</option>
-                      <option value="UDP">UDP</option>
-                      <option value="DNS">DNS</option>
-                      <option value="SSH">SSH</option>
-                    </select>
+                    <span class="to-filter-label">IP范围</span>
+                    <input type="text" class="to-input to-input-short" placeholder="xxx-xxx/y" v-model="ipRange" />
                   </label>
 
                   <div class="to-search-box">
-                    <input type="text" class="to-input" placeholder="关键字搜索..." v-model="keyword" />
-                    <button type="button" class="to-btn-primary" @click="handleSearch">搜索</button>
+                    <input type="text" class="to-input" placeholder="关键字..." v-model="keyword" />
+                    <button type="button" class="to-btn-primary" @click="handleSearch">🔍</button>
+                    <button type="button" class="to-btn-small" @click="showMoreFilters = !showMoreFilters">更多条件 ▼</button>
                   </div>
                 </div>
               </div>
@@ -70,56 +53,47 @@
               <!-- 分界线 -->
               <div class="to-divider"></div>
 
-              <!-- Top应用表格 -->
+              <!-- 在线用户表格 -->
               <div class="to-table-wrapper">
                 <table class="to-table-data">
                   <thead>
                     <tr>
-                      <th style="width:40px"><input type="checkbox" /></th>
-                      <th>协议名称</th>
+                      <th style="width:50px">序号</th>
+                      <th>IP <span class="sort-icon">⇅</span></th>
+                      <th>MAC <span class="sort-icon">⇅</span></th>
                       <th>连接数 <span class="sort-icon">⇅</span></th>
                       <th>流入bps <span class="sort-icon">⇅</span></th>
                       <th>流出bps <span class="sort-icon">⇅</span></th>
-                      <th>代理流入bps <span class="sort-icon">⇅</span></th>
-                      <th>代理流出bps <span class="sort-icon">⇅</span></th>
-                      <th style="width:180px">累计流量 <span class="sort-icon">⇅</span></th>
-                      <th style="width:180px">最近10分钟流量 <span class="sort-icon">⇅</span></th>
-                      <th style="width:80px">操作</th>
+                      <th>流入限速 <span class="sort-icon">⇅</span></th>
+                      <th>流出限速 <span class="sort-icon">⇅</span></th>
+                      <th>身份信息 <span class="sort-icon">⇅</span></th>
+                      <th>移动终端 <span class="sort-icon">⇅</span></th>
+                      <th>共享 <span class="sort-icon">⇅</span></th>
+                      <th>在线时长 <span class="sort-icon">⇅</span></th>
+                      <th>流入流量 <span class="sort-icon">⇅</span></th>
+                      <th>流出流量 <span class="sort-icon">⇅</span></th>
+                      <th>策略 <span class="sort-icon">⇅</span></th>
+                      <th>账号备注 <span class="sort-icon">⇅</span></th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(row, idx) in pagedTopApps" :key="row.name" :class="{ 'to-row-active': idx % 2 === 0 }">
-                      <td><input type="checkbox" /></td>
-                      <td><a href="#" class="to-link-text">{{ row.name }}</a></td>
-                      <td class="to-num-cell">{{ row.connections.toLocaleString() }}</td>
+                    <tr v-for="(row, idx) in pagedOnlineUsers" :key="row.ip" :class="{ 'to-row-active': idx % 2 === 0 }">
+                      <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+                      <td><a href="#" class="to-link-text">{{ row.ip }}</a></td>
+                      <td>{{ row.mac }}</td>
+                      <td class="to-num-cell">{{ row.connections }}</td>
                       <td class="to-num-cell">{{ row.inBps }}</td>
                       <td class="to-num-cell">{{ row.outBps }}</td>
-                      <td class="to-num-cell">{{ row.proxyInBps || '-' }}</td>
-                      <td class="to-num-cell">{{ row.proxyOutBps || '-' }}</td>
-                      <td>
-                        <div class="to-progress-wrap">
-                          <div class="to-progress-track">
-                            <div class="to-progress-bar" :style="{ width: row.totalPercent + '%' }"></div>
-                          </div>
-                          <span class="to-progress-text">{{ row.totalPercent }}%</span>
-                        </div>
-                        <div class="to-value-below">{{ row.totalTraffic }}</div>
-                      </td>
-                      <td>
-                        <div class="to-progress-wrap">
-                          <div class="to-progress-track to-progress-blue">
-                            <div class="to-progress-bar to-bar-blue" :style="{ width: row.recentPercent + '%' }"></div>
-                          </div>
-                          <span class="to-progress-text">{{ row.recentPercent }}%</span>
-                        </div>
-                        <div class="to-value-below">{{ row.recentTraffic }}</div>
-                      </td>
-                      <td>
-                        <div class="to-action-group">
-                          <button type="button" class="to-icon-btn" title="详情" @click="handleDetailView(row)">📊</button>
-                          <button type="button" class="to-icon-btn" title="下载" @click="handleDownload(row)">📥</button>
-                        </div>
-                      </td>
+                      <td class="to-num-cell">{{ row.inLimit || 0 }}</td>
+                      <td class="to-num-cell">{{ row.outLimit || 0 }}</td>
+                      <td>{{ row.identity || 0 }}</td>
+                      <td class="to-num-cell">{{ row.mobile || 0 }}</td>
+                      <td class="to-num-cell">{{ row.share }}</td>
+                      <td class="to-num-cell">{{ row.onlineTime }}</td>
+                      <td class="to-num-cell">{{ row.inTraffic }}</td>
+                      <td class="to-num-cell">{{ row.outTraffic }}</td>
+                      <td>{{ row.policy || '-' }}</td>
+                      <td>{{ row.accountNote || '-' }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -128,29 +102,23 @@
               <!-- 分页 -->
               <div class="to-pagination-bar">
                 <div class="to-page-info">
-                  <span>共 {{ filteredTopApps.length }} 条</span>
+                  <span>共 {{ filteredOnlineUsers.length }} 条</span>
+                  <span style="margin-left:12px;color:#909399;">100 条/页 ▼</span>
                 </div>
                 <div class="to-page-controls">
                   <button type="button" class="to-page-btn" :disabled="currentPage === 1" @click="currentPage--">&lt;</button>
                   <template v-for="p in visiblePages" :key="'tp-' + p">
-                    <button v-if="p !== '...'" type="button" 
-                            class="to-page-num" 
-                            :class="{ active: p === currentPage }" 
+                    <button v-if="p !== '...'" type="button"
+                            class="to-page-num"
+                            :class="{ active: p === currentPage }"
                             @click="currentPage = p">{{ p }}</button>
                     <span v-else class="to-page-dots">...</span>
                   </template>
                   <button type="button" class="to-page-btn" :disabled="currentPage === totalPages" @click="currentPage++">&gt;</button>
-                </div>
-                <div class="to-page-jump">
-                  <span>到第</span>
-                  <input type="text" class="to-jump-input" v-model.number="gotoPage" />
-                  <span>页</span>
+                  <span style="margin-left:8px;font-size:13px;color:#606266;">到第</span>
+                  <input type="text" class="to-jump-input" v-model.number="gotoPage" style="width:46px;" />
+                  <span style="font-size:13px;color:#606266;">页</span>
                   <button type="button" class="to-btn-default" @click="jumpToPage">确定</button>
-                  <select class="to-size-selector" v-model="pageSize">
-                      <option value="20">20条/页</option>
-                      <option value="50">50条/页</option>
-                      <option value="100">100条/页</option>
-                    </select>
                 </div>
               </div>
             </div>
@@ -158,60 +126,33 @@
         </div>
       </div>
 
-      <!-- 协议统计 Tab -->
-      <div v-show="activeTab === 'protocol'" class="to-dashboard-scroll">
+      <!-- 流量统计 Tab -->
+      <div v-show="activeTab === 'traffic'" class="to-dashboard-scroll">
         <div class="to-dashboard">
           <!-- 过滤栏面板 -->
           <div class="to-chart-row">
-            <div class="to-chart-panel to-chart-panel-full" data-chart="filter-proto">
-              <!-- 过滤条件：只保留核心过滤项 -->
+            <div class="to-chart-panel to-chart-panel-full" data-chart="filter-traffic">
+              <!-- 过滤条件 -->
               <div class="to-filter-container">
                 <div class="to-filter-row-simple">
                   <label class="to-filter-item">
-                    <span class="to-filter-label">网桥链路</span>
-                    <select class="to-filter-select" v-model="linkFilterProto">
-                      <option value="all">所有链路</option>
-                      <option value="eth0">eth0</option>
-                      <option value="eth1">eth1</option>
-                      <option value="br0">br0</option>
-                      <option value="br1">br1</option>
+                    <span class="to-filter-label">选择IP</span>
+                    <select class="to-filter-select" v-model="selectedIP">
+                      <option value="any">任意IP</option>
+                      <option value="166.111.7.8">166.111.7.8</option>
+                      <option value="166.111.7.7">166.111.7.7</option>
+                      <option value="101.6.4.110">101.6.4.110</option>
                     </select>
                   </label>
 
                   <label class="to-filter-item">
-                    <span class="to-filter-label">协议类型</span>
-                    <select class="to-filter-select" v-model="protocolTypeProto">
-                      <option value="IPv4">IPv4</option>
-                      <option value="IPv6">IPv6</option>
-                      <option value="all">全部</option>
-                    </select>
-                  </label>
-
-                  <label class="to-filter-item">
-                    <span class="to-filter-label">应用协议</span>
-                    <select class="to-filter-select" v-model="protoAppFilter">
-                      <option value="any">任意协议</option>
-                      <option value="HTTP">HTTP</option>
-                      <option value="HTTPS">HTTPS</option>
-                      <option value="TCP">TCP</option>
-                      <option value="UDP">UDP</option>
-                      <option value="DNS">DNS</option>
-                      <option value="SSH">SSH</option>
-                    </select>
-                  </label>
-
-                  <label class="to-filter-item">
-                    <span class="to-filter-label">任意协议</span>
-                    <select class="to-filter-select" v-model="anyProtoFilter">
-                      <option value="all">全部</option>
-                      <option value="tcp">TCP</option>
-                      <option value="udp">UDP</option>
-                    </select>
+                    <span class="to-filter-label">时间范围</span>
+                    <input type="text" class="to-input-time" v-model="timeRange" readonly />
                   </label>
 
                   <div class="to-search-box">
-                    <input type="text" class="to-input" placeholder="关键字搜索..." v-model="protoKeyword" />
-                    <button type="button" class="to-btn-primary" @click="handleProtoSearch">搜索</button>
+                    <button type="button" class="to-btn-primary" @click="handleTrafficSearch">🔍</button>
+                    <button type="button" class="to-btn-reset" @click="resetTrafficFilters">重置</button>
                   </div>
                 </div>
               </div>
@@ -219,28 +160,29 @@
               <!-- 分界线 -->
               <div class="to-divider"></div>
 
-              <!-- 协议统计表格 -->
+              <!-- 流量统计表格 -->
               <div class="to-table-wrapper">
                 <table class="to-table-data">
                   <thead>
                     <tr>
-                      <th style="width:60px">序号</th>
-                      <th>应用/协议</th>
-                      <th>连接数 <span class="sort-icon">⇅</span></th>
+                      <th style="width:50px">序号</th>
+                      <th>IP <span class="sort-icon">⇅</span></th>
+                      <th>平均连接数 <span class="sort-icon">⇅</span></th>
                       <th>流入bps <span class="sort-icon">⇅</span></th>
                       <th>流出bps <span class="sort-icon">⇅</span></th>
                       <th>总bps <span class="sort-icon">⇅</span></th>
-                      <th>流入流量 <span class="sort-icon">⇅</span></th>
-                      <th>流出流量 <span class="sort-icon">⇅</span></th>
-                      <th style="width:180px">总流量 <span class="sort-icon">⇅</span></th>
+                      <th>流入流量/B <span class="sort-icon">⇅</span></th>
+                      <th>流出流量/B <span class="sort-icon">⇅</span></th>
+                      <th style="width:180px">总流量/B <span class="sort-icon">⇅</span></th>
+                      <th>用户名称 <span class="sort-icon">⇅</span></th>
                       <th style="width:80px">操作</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(row, idx) in pagedProtocols" :key="row.name" :class="{ 'to-row-active': idx % 2 === 0 }">
-                      <td>{{ (currentPageProto - 1) * pageSizeProto + idx + 1 }}</td>
-                      <td><a href="#" class="to-link-text">{{ row.name }}</a></td>
-                      <td class="to-num-cell">{{ row.connections.toLocaleString() }}</td>
+                    <tr v-for="(row, idx) in pagedTrafficStats" :key="row.ip + idx" :class="{ 'to-row-active': idx % 2 === 0 }">
+                      <td>{{ (currentPageTraffic - 1) * pageSizeTraffic + idx + 1 }}</td>
+                      <td><a href="#" class="to-link-text">{{ row.ip }}</a></td>
+                      <td class="to-num-cell">{{ row.avgConnections }}</td>
                       <td class="to-num-cell">{{ row.inBps }}</td>
                       <td class="to-num-cell">{{ row.outBps }}</td>
                       <td class="to-num-cell">{{ row.totalBps }}</td>
@@ -255,10 +197,10 @@
                         </div>
                         <div class="to-value-below">{{ row.totalTraffic }}</div>
                       </td>
+                      <td>{{ row.userName || '-' }}</td>
                       <td>
                         <div class="to-action-group">
-                          <button type="button" class="to-icon-btn" title="详情" @click="handleProtoView(row)">📊</button>
-                          <button type="button" class="to-icon-btn" title="趋势" @click="handleProtoTrend(row)">📈</button>
+                          <button type="button" class="to-icon-btn" title="详情" @click="handleTrafficDetail(row)">📊</button>
                         </div>
                       </td>
                     </tr>
@@ -269,29 +211,23 @@
               <!-- 分页 -->
               <div class="to-pagination-bar">
                 <div class="to-page-info">
-                  <span>共 {{ filteredProtocols.length }} 条</span>
+                  <span>共 {{ filteredTrafficStats.length }} 条</span>
+                  <span style="margin-left:12px;color:#909399;">100 条/页 ▼</span>
                 </div>
                 <div class="to-page-controls">
-                  <button type="button" class="to-page-btn" :disabled="currentPageProto === 1" @click="currentPageProto--">&lt;</button>
-                  <template v-for="p in visiblePagesProto" :key="'pp-' + p">
-                    <button v-if="p !== '...'" type="button" 
-                            class="to-page-num" 
-                            :class="{ active: p === currentPageProto }" 
-                            @click="currentPageProto = p">{{ p }}</button>
+                  <button type="button" class="to-page-btn" :disabled="currentPageTraffic === 1" @click="currentPageTraffic--">&lt;</button>
+                  <template v-for="p in visiblePagesTraffic" :key="'tt-' + p">
+                    <button v-if="p !== '...'" type="button"
+                            class="to-page-num"
+                            :class="{ active: p === currentPageTraffic }"
+                            @click="currentPageTraffic = p">{{ p }}</button>
                     <span v-else class="to-page-dots">...</span>
                   </template>
-                  <button type="button" class="to-page-btn" :disabled="currentPageProto === totalPagesProto" @click="currentPageProto++">&gt;</button>
-                </div>
-                <div class="to-page-jump">
-                  <span>到第</span>
-                  <input type="text" class="to-jump-input" v-model.number="gotoPageProto" />
-                  <span>页</span>
-                  <button type="button" class="to-btn-default" @click="jumpToPageProto">确定</button>
-                  <select class="to-size-selector" v-model="pageSizeProto">
-                      <option value="20">20条/页</option>
-                      <option value="50">50条/页</option>
-                      <option value="100">100条/页</option>
-                    </select>
+                  <button type="button" class="to-page-btn" :disabled="currentPageTraffic === totalPagesTraffic" @click="currentPageTraffic++">&gt;</button>
+                  <span style="margin-left:8px;font-size:13px;color:#606266;">到第</span>
+                  <input type="text" class="to-jump-input" v-model.number="gotoPageTraffic" style="width:46px;" />
+                  <span style="font-size:13px;color:#606266;">页</span>
+                  <button type="button" class="to-btn-default" @click="jumpToPageTraffic">确定</button>
                 </div>
               </div>
             </div>
@@ -304,259 +240,171 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { mockTopApps, mockStats } from './mock-data'
 
-const activeTab = ref<'top' | 'protocol'>('top')
+const activeTab = ref<'online' | 'traffic'>('online')
 
-// Top应用相关状态
+// 在线用户相关状态
 const refreshInterval = ref('0')
-const linkFilter = ref('all')
-const protocolType = ref('IPv4')
-const appProtocol = ref('any')
+const userType = ref('all')
+const ipRange = ref('')
 const keyword = ref('')
+const showMoreFilters = ref(false)
 const currentPage = ref(1)
-const pageSize = ref(20)
+const pageSize = ref(100)
 const gotoPage = ref(1)
 
-// 协议统计相关状态
-const protoAppFilter = ref('any')
-const anyProtoFilter = ref('all')
-const linkFilterProto = ref('all')
-const protocolTypeProto = ref('IPv4')
-const timeRange = ref('2026-07-15 10:42:51 - 2026-07-15 10:57:51')
-const currentPageProto = ref(1)
-const pageSizeProto = ref(20)
-const gotoPageProto = ref(1)
+// 流量统计相关状态
+const selectedIP = ref('any')
+const timeRange = ref('2026-07-15 15:58:23 - 2026-07-15 16:13:23')
+const currentPageTraffic = ref(1)
+const pageSizeTraffic = ref(100)
+const gotoPageTraffic = ref(1)
 
-// Top应用模拟数据
-// Top应用基础名称列表
-const appNames = [
-  '其它HTTPS', 'WWW', 'RSync', '其它下载', 'TCP下载及视频', '无连接TCP',
-  'RTMP', '未知应用', 'IMAP', '未知80端口', 'HTTP', 'HTTPS', 'DNS',
-  'SSH', 'FTP', 'SMTP', 'POP3', 'Telnet', 'SNMP', 'LDAP', 'MySQL',
-  'PostgreSQL', 'MongoDB', 'Redis', 'Memcached', 'RabbitMQ', 'Kafka',
-  'Elasticsearch', 'Docker', 'Kubernetes', 'gRPC', 'WebSocket', 'QUIC'
-]
-
-// 协议统计基础名称列表
-const protocolNames = [
-  '其它HTTPS', 'WWW', 'RSync', '其它下载', '无连接TCP', 'RTMP',
-  'TCP下载及视频', '未知应用', 'IMAP', '未知80端口', 'HTTP/2', 'SPDY',
-  'DNS-UDP', 'DNS-TCP', 'TLSv1.2', 'TLSv1.3', 'SSHv2', 'SFTP',
-  'FTP-Control', 'FTP-Data', 'SMTP-TLS', 'IMAPS', 'POP3S', 'Telnet-SSL',
-  'SNMPv3', 'LDAPS', 'MySQL-SSL', 'PostgreSQL-SSL', 'MongoDB-SCRAM',
-  'Redis-AUTH', 'AMQP-SSL', 'Kafka-SASL', 'ES-HTTPS', 'Docker-API',
-  'K8s-API', 'gRPC-TLS', 'WSS', 'QUIC-HTTP3'
-]
-
-// 随机数生成辅助函数
-const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
-const randomFloat = (min: number, max: number, decimals: number = 2) => (Math.random() * (max - min) + min).toFixed(decimals)
-
-// 格式化流量单位
-function formatBps(value: number): string {
-  if (value >= 1000000) return `${(value / 1000000).toFixed(2)} G`
-  if (value >= 1000) return `${(value / 1000).toFixed(2)} M`
-  return `${value.toFixed(2)} K`
+// 在线用户模拟数据
+interface OnlineUser {
+  ip: string
+  mac: string
+  connections: number
+  inBps: string
+  outBps: string
+  inLimit: number
+  outLimit: number
+  identity: number
+  mobile: number
+  share: string
+  onlineTime: string
+  inTraffic: string
+  outTraffic: string
+  policy: string
+  accountNote: string
 }
 
-function formatTraffic(value: number): string {
-  if (value >= 1024) return `${(value / 1024).toFixed(2)} T`
-  return `${value.toFixed(2)} G`
+function generateIP(): string {
+  return `${Math.floor(Math.random() * 255) + 1}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 254) + 1}`
 }
 
-// 生成Top应用模拟数据（500条）
-function generateTopAppsData(count: number = 500) {
-  const data = []
-  
-  // 前10条使用固定的大流量数据
-  const topItems = [
-    { name: '其它HTTPS', baseConn: 112232, baseIn: 23058.60, weight: 64.31 },
-    { name: 'WWW', baseConn: 17474, baseIn: 6452.77, weight: 8.70 },
-    { name: 'RSync', baseConn: 602, baseIn: 2246.38, weight: 16.67 },
-    { name: '其它下载', baseConn: 4734, baseIn: 2099.27, weight: 2.06 },
-    { name: 'TCP下载及视频', baseConn: 0, baseIn: 612.67, weight: 2.08 },
-    { name: '无连接TCP', baseConn: 11816, baseIn: 686.49, weight: 2.33 },
-    { name: 'RTMP', baseConn: 306, baseIn: 509.62, weight: 1.26 },
-    { name: '未知应用', baseConn: 17684, baseIn: 192.33, weight: 0.49 },
-    { name: 'IMAP', baseConn: 6180, baseIn: 123.80, weight: 0.17 },
-    { name: '未知80端口', baseConn: 109, baseIn: 60.65, weight: 0.10 }
-  ]
-  
+function generateMAC(): string {
+  const hex = () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0').toUpperCase()
+  return `${hex()}:${hex()}:${hex()}:${hex()}:${hex()}:${hex()}`
+}
+
+function generateOnlineUsersData(count: number = 8672): OnlineUser[] {
+  const data: OnlineUser[] = []
   for (let i = 0; i < count; i++) {
-    let item
-    
-    if (i < topItems.length) {
-      // 前10条使用固定的真实数据
-      const t = topItems[i]
-      item = {
-        name: t.name,
-        connections: t.baseConn,
-        inBps: `${t.baseIn.toFixed(2)}M`,
-        outBps: `${(t.baseIn * randomFloat(0.02, 0.15)).toFixed(2)}M`,
-        proxyInBps: 0,
-        proxyOutBps: 0,
-        totalPercent: t.weight,
-        totalTraffic: `${(t.baseIn * randomFloat(150, 200)).toFixed(2)}G`,
-        recentPercent: parseFloat(randomFloat(t.weight * 0.8, t.weight * 1.2)),
-        recentTraffic: `${(t.baseIn * randomFloat(0.005, 0.02)).toFixed(2)}G`
-      }
-    } else {
-      // 后面的数据随机生成
-      const appName = appNames[(i - 10) % appNames.length] + (Math.floor((i - 10) / appNames.length) > 0 ? `-${Math.floor((i - 10) / appNames.length) + 1}` : '')
-      const conn = randomInt(0, 50000)
-      const inVal = randomFloat(0.1, 800)
-      const percent = parseFloat(randomFloat(0.01, 2))
-      
-      item = {
-        name: appName,
-        connections: conn,
-        inBps: `${inVal}M`,
-        outBps: `${(parseFloat(inVal) * randomFloat(0.02, 0.15)).toFixed(2)}M`,
-        proxyInBps: 0,
-        proxyOutBps: 0,
-        totalPercent: percent,
-        totalTraffic: `${(parseFloat(inVal) * randomFloat(50, 300)).toFixed(2)}G`,
-        recentPercent: parseFloat(randomFloat(percent * 0.7, percent * 1.3)),
-        recentTraffic: `${(parseFloat(inVal) * randomFloat(0.001, 0.02)).toFixed(2)}G`
-      }
-    }
-    
-    data.push(item)
+    const conn = Math.floor(Math.random() * 200)
+    const inBpsVal = (Math.random() * 1000).toFixed(0)
+    const outBpsVal = (Math.random() * 500).toFixed(0)
+    const hours = Math.floor(Math.random() * 24)
+    const mins = Math.floor(Math.random() * 60)
+    const secs = Math.floor(Math.random() * 60)
+
+    data.push({
+      ip: generateIP(),
+      mac: generateMAC(),
+      connections: conn,
+      inBps: `${inBpsVal}M`,
+      outBps: `${outBpsVal}M`,
+      inLimit: 0,
+      outLimit: 0,
+      identity: 0,
+      mobile: Math.random() > 0.8 ? Math.floor(Math.random() * 50) : 0,
+      share: '0/0/0',
+      onlineTime: `20${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`,
+      inTraffic: `${(Math.random() * 10000).toFixed(2)}G`,
+      outTraffic: `${(Math.random() * 2000).toFixed(2)}G`,
+      policy: '',
+      accountNote: ''
+    })
   }
-  
   return data
 }
 
-// 生成协议统计模拟数据（400条）
-function generateProtocolsData(count: number = 400) {
-  const data = []
-  
-  // 前10条使用固定的大流量数据
-  const topProtos = [
-    { name: '其它HTTPS', baseConn: 118369, baseIn: 24.94, weight: 70.93 },
-    { name: 'WWW', baseConn: 15899, baseIn: 4.93, weight: 13.70 },
-    { name: 'RSync', baseConn: 613, baseIn: 1.95, weight: 5.52 },
-    { name: '其它下载', baseConn: 4695, baseIn: 1.26, weight: 3.67 },
-    { name: '无连接TCP', baseConn: 11276, baseIn: 0.53, weight: 1.52 },
-    { name: 'RTMP', baseConn: 308, baseIn: 0.51, weight: 1.42 },
-    { name: 'TCP下载及视频', baseConn: 0, baseIn: 0.39, weight: 1.09 },
-    { name: '未知应用', baseConn: 16629, baseIn: 0.21, weight: 0.62 },
-    { name: 'IMAP', baseConn: 6193, baseIn: 0.09, weight: 0.31 },
-    { name: '未知80端口', baseConn: 114, baseIn: 0.08, weight: 0.22 }
-  ]
-  
+const onlineUsersData = ref<OnlineUser[]>(generateOnlineUsersData())
+
+// 流量统计模拟数据
+interface TrafficStat {
+  ip: string
+  avgConnections: number
+  inBps: string
+  outBps: string
+  totalBps: string
+  inTraffic: string
+  outTraffic: string
+  totalPercent: number
+  totalTraffic: string
+  userName: string
+}
+
+function generateTrafficStatsData(count: number = 165): TrafficStat[] {
+  const data: TrafficStat[] = []
+  const ips = ['166.111.7.8', '166.111.7.7', '166.111.5.68', '101.6.4.110', '211.71.82.10']
+
   for (let i = 0; i < count; i++) {
-    let item
-    
-    if (i < topProtos.length) {
-      // 前10条使用固定的真实数据
-      const p = topProtos[i]
-      item = {
-        name: p.name,
-        connections: p.baseConn,
-        inBps: `${p.baseIn} G`,
-        outBps: `${(p.baseIn * randomFloat(0.03, 0.06)).toFixed(2)} G`,
-        totalBps: `${(p.baseIn * 1.03).toFixed(2)} G`,
-        inTraffic: `${(p.baseIn * randomFloat(90, 110)).toFixed(2)} G`,
-        outTraffic: `${(p.baseIn * randomFloat(3, 8)).toFixed(2)} G`,
-        totalPercent: p.weight,
-        totalTraffic: `${(p.baseIn * randomFloat(0.09, 0.12)).toFixed(2)} T`
-      }
-    } else {
-      // 后面的数据随机生成
-      const protoName = protocolNames[(i - 10) % protocolNames.length] + (Math.floor((i - 10) / protocolNames.length) > 0 ? `-${Math.floor((i - 10) / protocolNames.length) + 1}` : '')
-      const conn = randomInt(0, 20000)
-      const inVal = randomFloat(0.001, 2)
-      const percent = parseFloat(randomFloat(0.01, 1.5))
-      
-      item = {
-        name: protoName,
-        connections: conn,
-        inBps: `${inVal} G`,
-        outBps: `${(parseFloat(inVal) * randomFloat(0.02, 0.08)).toFixed(3)} G`,
-        totalBps: `${(parseFloat(inVal) * 1.04).toFixed(3)} G`,
-        inTraffic: `${(parseFloat(inVal) * randomFloat(80, 120)).toFixed(2)} G`,
-        outTraffic: `${(parseFloat(inVal) * randomFloat(2, 6)).toFixed(2)} G`,
-        totalPercent: percent,
-        totalTraffic: `${(parseFloat(inVal) * randomFloat(0.08, 0.15)).toFixed(3)} T`
-      }
-    }
-    
-    data.push(item)
+    const ip = ips[i % ips.length] || generateIP()
+    const avgConn = Math.floor(Math.random() * 3000)
+    const inBpsVal = (Math.random() * 8000).toFixed(1)
+    const outBpsVal = (Math.random() * 3000).toFixed(1)
+    const totalBpsVal = (parseFloat(inBpsVal) + parseFloat(outBpsVal)).toFixed(1)
+    const percent = parseFloat((Math.random() * 40).toFixed(2))
+    const totalTrafficG = (Math.random() * 10).toFixed(2)
+
+    data.push({
+      ip,
+      avgConnections: avgConn,
+      inBps: `${inBpsVal}M`,
+      outBps: `${outBpsVal}M`,
+      totalBps: `${totalBpsVal}M`,
+      inTraffic: `${(parseFloat(totalBpsVal) * 60).toFixed(1)}M`,
+      outTraffic: `${(parseFloat(outBpsVal) * 50).toFixed(1)}M`,
+      totalPercent: percent,
+      totalTraffic: `${totalTrafficG}G`,
+      userName: i < 5 ? `用户${i + 1}` : ''
+    })
   }
-  
   return data
 }
 
-// 初始化数据
-const topAppsData = ref(generateTopAppsData(500))
+const trafficStatsData = ref<TrafficStat[]>(generateTrafficStatsData())
 
-// 协议统计模拟数据
-const protocolsData = ref(generateProtocolsData(400))
-
-let timer: any = null
-
-// KPI计算属性
-const totalConnections = computed(() => topAppsData.value.reduce((sum, app) => sum + app.connections, 0).toLocaleString())
-const activeConnections = computed(() => Math.floor(topAppsData.value.reduce((sum, app) => sum + app.connections, 0) * 0.85).toLocaleString())
-const totalTraffic = computed(() => '5.21 PB')
-const inTraffic = computed(() => '3.68 PB')
-const outTraffic = computed(() => '1.53 PB')
-const proxyTraffic = computed(() => '128 TB')
-const appCount = computed(() => topAppsData.value.length)
-const protocolCount = computed(() => protocolsData.value.length)
-const avgBps = computed(() => '28.45 Gbps')
-const peakBps = computed(() => '156.78 Gbps')
-
-// 协议统计KPI
-const protoTotalCount = computed(() => protocolsData.value.length)
-const protoActiveCount = computed(() => Math.floor(protocolsData.value.length * 0.92))
-const protoTotalConn = computed(() => protocolsData.value.reduce((sum, p) => sum + p.connections, 0).toLocaleString())
-const protoTcpConn = computed(() => Math.floor(protocolsData.value.reduce((sum, p) => sum + p.connections, 0) * 0.75).toLocaleString())
-const protoUdpConn = computed(() => Math.floor(protocolsData.value.reduce((sum, p) => sum + p.connections, 0) * 0.23).toLocaleString())
-const protoOtherConn = computed(() => Math.floor(protocolsData.value.reduce((sum, p) => sum + p.connections, 0) * 0.02).toLocaleString())
-const protoInTotal = computed(() => '4.18 PB')
-const protoOutTotal = computed(() => '1.89 PB')
-const protoAvgRate = computed(() => '32.67 Gbps')
-const protoPeakRate = computed(() => '189.34 Gbps')
-
-// 过滤计算属性
-const filteredTopApps = computed(() => {
-  let data = [...topAppsData.value]
+// 在线用户过滤和分页
+const filteredOnlineUsers = computed(() => {
+  let data = [...onlineUsersData.value]
   if (keyword.value) {
-    data = data.filter(item => item.name.toLowerCase().includes(keyword.value.toLowerCase()))
+    data = data.filter(item =>
+      item.ip.includes(keyword.value) ||
+      item.mac.toLowerCase().includes(keyword.value.toLowerCase())
+    )
   }
   return data
 })
 
-const filteredProtocols = computed(() => {
-  let data = [...protocolsData.value]
-  if (protoAppFilter.value !== 'any') {
-    data = data.filter(item => item.name.includes(protoAppFilter.value))
-  }
-  return data
-})
-
-// 分页计算属性
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredTopApps.value.length / parseInt(pageSize.value))))
-const pagedTopApps = computed(() => {
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredOnlineUsers.value.length / parseInt(pageSize.value))))
+const pagedOnlineUsers = computed(() => {
   const start = (currentPage.value - 1) * parseInt(pageSize.value)
-  return filteredTopApps.value.slice(start, start + parseInt(pageSize.value))
+  return filteredOnlineUsers.value.slice(start, start + parseInt(pageSize.value))
 })
 
-const totalPagesProto = computed(() => Math.max(1, Math.ceil(filteredProtocols.value.length / parseInt(pageSizeProto.value))))
-const pagedProtocols = computed(() => {
-  const start = (currentPageProto.value - 1) * parseInt(pageSizeProto.value)
-  return filteredProtocols.value.slice(start, start + parseInt(pageSizeProto.value))
+// 流量统计过滤和分页
+const filteredTrafficStats = computed(() => {
+  let data = [...trafficStatsData.value]
+  if (selectedIP.value !== 'any') {
+    data = data.filter(item => item.ip === selectedIP.value)
+  }
+  return data
 })
 
-// 可见页码
+const totalPagesTraffic = computed(() => Math.max(1, Math.ceil(filteredTrafficStats.value.length / parseInt(pageSizeTraffic.value))))
+const pagedTrafficStats = computed(() => {
+  const start = (currentPageTraffic.value - 1) * parseInt(pageSizeTraffic.value)
+  return filteredTrafficStats.value.slice(start, start + parseInt(pageSizeTraffic.value))
+})
+
+// 可见页码 - 在线用户
 const visiblePages = computed(() => {
   const pages: (number | string)[] = []
   const current = currentPage.value
   const total = totalPages.value
-  
+
   if (total <= 7) {
     for (let i = 1; i <= total; i++) pages.push(i)
   } else {
@@ -568,15 +416,16 @@ const visiblePages = computed(() => {
     if (current < total - 2) pages.push('...')
     pages.push(total)
   }
-  
+
   return pages
 })
 
-const visiblePagesProto = computed(() => {
+// 可见页码 - 流量统计
+const visiblePagesTraffic = computed(() => {
   const pages: (number | string)[] = []
-  const current = currentPageProto.value
-  const total = totalPagesProto.value
-  
+  const current = currentPageTraffic.value
+  const total = totalPagesTraffic.value
+
   if (total <= 7) {
     for (let i = 1; i <= total; i++) pages.push(i)
   } else {
@@ -588,18 +437,23 @@ const visiblePagesProto = computed(() => {
     if (current < total - 2) pages.push('...')
     pages.push(total)
   }
-  
+
   return pages
 })
 
+// 事件处理函数
 function handleSearch() {
   currentPage.value = 1
 }
 
-function resetProtoFilters() {
-  protoAppFilter.value = 'any'
-  anyProtoFilter.value = 'all'
-  currentPageProto.value = 1
+function handleTrafficSearch() {
+  currentPageTraffic.value = 1
+}
+
+function resetTrafficFilters() {
+  selectedIP.value = 'any'
+  timeRange.value = '2026-07-15 15:58:23 - 2026-07-15 16:13:23'
+  currentPageTraffic.value = 1
 }
 
 function jumpToPage() {
@@ -607,26 +461,24 @@ function jumpToPage() {
   currentPage.value = page
 }
 
-function jumpToPageProto() {
-  const page = Math.max(1, Math.min(parseInt(String(gotoPageProto.value)) || 1, totalPagesProto.value))
-  currentPageProto.value = page
+function jumpToPageTraffic() {
+  const page = Math.max(1, Math.min(parseInt(String(gotoPageTraffic.value)) || 1, totalPagesTraffic.value))
+  currentPageTraffic.value = page
 }
 
 function handleDetailView(row: any) {
-  console.log('查看详情:', row.name)
+  console.log('查看详情:', row.ip)
 }
 
 function handleDownload(row: any) {
-  console.log('下载数据:', row.name)
+  console.log('下载数据:', row.ip)
 }
 
-function handleProtoView(row: any) {
-  console.log('协议详情:', row.name)
+function handleTrafficDetail(row: any) {
+  console.log('流量详情:', row.ip)
 }
 
-function handleProtoTrend(row: any) {
-  console.log('协议趋势:', row.name)
-}
+let timer: any = null
 
 onMounted(() => {
   if (parseInt(refreshInterval.value) > 0) {
@@ -728,130 +580,6 @@ onBeforeUnmount(() => {
   margin-top: 12px;
 }
 
-.to-summary-row-5 {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.to-stat-card-v2 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  padding: 12px 14px;
-  background: #fff;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-}
-
-.to-stat-v2-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #409eff;
-  background: linear-gradient(145deg, #e6f4ff 0%, #ecf5ff 100%);
-  box-shadow: inset 0 0 0 1px rgba(64, 158, 255, 0.12);
-}
-
-.to-stat-v2-icon svg {
-  width: 20px;
-  height: 20px;
-  display: block;
-}
-
-.to-stat-v2-icon-conn { color: #597ef7; background: linear-gradient(145deg, #eef2ff 0%, #f0f5ff 100%); }
-.to-stat-v2-icon-user { color: #13c2c2; background: linear-gradient(145deg, #e6fffb 0%, #ecfefe 100%); }
-.to-stat-v2-icon-pps { color: #fa8c16; background: linear-gradient(145deg, #fff7e6 0%, #fffbe6 100%); }
-
-.to-stat-v2-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.to-stat-v2-metric {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  min-width: 0;
-}
-
-.to-stat-v2-metric-main {
-  margin-bottom: 2px;
-}
-
-.to-stat-v2-key {
-  font-size: 12px;
-  color: #606266;
-  white-space: nowrap;
-  font-weight: 600;
-}
-
-.to-stat-v2-val {
-  font-size: 16px;
-  font-weight: 700;
-  color: #303133;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.to-stat-v2-val-lg {
-  font-size: 18px;
-}
-
-.to-stat-v2-subgrid {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 4px;
-  margin-top: 4px;
-  width: 100%;
-}
-
-.to-stat-v2-sub {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-  font-size: 12px;
-  color: #909399;
-}
-
-.to-stat-v2-sub:first-child {
-  align-items: flex-start;
-  text-align: left;
-}
-
-.to-stat-v2-sub:nth-child(2) {
-  align-items: center;
-  text-align: center;
-}
-
-.to-stat-v2-sub:last-child {
-  align-items: flex-end;
-  text-align: right;
-}
-
-.to-stat-v2-sub strong {
-  font-size: 14px;
-  font-weight: 700;
-  color: #303133;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
 .to-chart-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -872,65 +600,6 @@ onBeforeUnmount(() => {
 .to-chart-panel-full {
   grid-column: 1 / -1;
 }
-
-.to-panel-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px 6px;
-  flex-shrink: 0;
-}
-
-.to-panel-head-left {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 14px;
-  min-width: 0;
-}
-
-.to-panel-head-right {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.to-panel-title {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #303133;
-  white-space: nowrap;
-}
-
-.to-panel-stats {
-  font-size: 12px;
-  color: #909399;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.to-panel-menu {
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: #909399;
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.to-panel-menu:hover {
-  background: #f5f7fa;
-  color: #606266;
-}
-
-/* ===== 表格相关样式（新增） ===== */
 
 .to-filter-container {
   padding: 16px 20px;
@@ -996,6 +665,10 @@ onBeforeUnmount(() => {
   border-color: #409eff;
 }
 
+.to-input-short {
+  width: 150px;
+}
+
 .to-input-time {
   height: 32px;
   padding: 0 10px;
@@ -1057,23 +730,6 @@ onBeforeUnmount(() => {
   color: #606266;
   font-size: 13px;
   cursor: pointer;
-}
-
-.to-filter-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.to-link-action {
-  color: #409eff;
-  text-decoration: none;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.to-link-action:hover {
-  text-decoration: underline;
 }
 
 /* 表格容器 */
@@ -1352,14 +1008,6 @@ onBeforeUnmount(() => {
   font-size: 13px;
 }
 
-.to-page-jump {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #606266;
-}
-
 .to-jump-input {
   width: 46px;
   height: 30px;
@@ -1375,17 +1023,6 @@ onBeforeUnmount(() => {
   border-color: #409eff;
 }
 
-.to-size-selector {
-  height: 30px;
-  padding: 0 6px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  font-size: 13px;
-  background: #fff;
-  color: #606266;
-  cursor: pointer;
-}
-
 /* 响应式布局 */
 @media (max-width: 1280px) {
   .to-summary-row-5 {
@@ -1394,41 +1031,32 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 960px) {
-  .to-summary-row-5 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  
   .to-chart-row {
     grid-template-columns: 1fr;
   }
-  
+
   .to-pagination-bar {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  
-  .to-page-controls,
-  .to-page-jump {
+
+  .to-page-controls {
     justify-content: center;
   }
 }
 
 @media (max-width: 560px) {
-  .to-summary-row-5 {
-    grid-template-columns: 1fr;
-  }
-  
   .to-filter-row {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .to-search-box {
     margin-left: 0;
     width: 100%;
   }
-  
+
   .to-input {
     flex: 1;
   }
