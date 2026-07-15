@@ -1,5 +1,8 @@
 <template>
-  <el-container class="layout-root" direction="vertical">
+  <template v-if="isStandalone">
+    <router-view />
+  </template>
+  <el-container v-else class="layout-root" direction="vertical">
     <!-- ── Top Header (blue gradient) ─────────────────────────────────── -->
     <header class="app-header">
       <div class="header-brand">
@@ -243,6 +246,7 @@ import ConnectionBadge from '@/components/ConnectionBadge.vue'
 
 const route = useRoute()
 
+const isStandalone = computed(() => route.meta.standalone === true)
 const activeRoute = computed(() => route.path)
 const pageTitle = computed(() => (route.meta?.title as string) ?? '')
 

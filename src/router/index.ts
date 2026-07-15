@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿import { createRouter, createWebHashHistory } from 'vue-router'
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿import { createRouter, createWebHashHistory } from 'vue-router'
 
 // Routes are lazy-loaded so the initial bundle stays small.
 const router = createRouter({
@@ -187,6 +187,7 @@ const router = createRouter({
     // ── 11. NetVisor 集成（原生 Vue 组件）─────────────────────────────
     // 系统概况
     { path: '/nv/traffic-overview', name: 'nv-traffic-overview', component: () => import('@/views/netvisor/TrafficOverviewView.vue'), meta: { title: 'NetVisor — 流量概况' } },
+    { path: '/nv/protocol-group-status', name: 'nv-protocol-group-status', component: () => import('@/views/netvisor/ProtocolGroupStatusView.vue'), meta: { title: 'NetVisor — 系统协议组状态', standalone: true } },
     { path: '/nv/system-info', name: 'nv-system-info', component: () => import('@/views/netvisor/SystemInfoView.vue'), meta: { title: 'NetVisor — 系统信息' } },
     { path: '/nv/online-users', name: 'nv-online-users', component: () => import('@/views/netvisor/OnlineUsersView.vue'), meta: { title: 'NetVisor — 在线用户' } },
     { path: '/nv/top-apps', name: 'nv-top-apps', component: () => import('@/views/netvisor/TopAppsView.vue'), meta: { title: 'NetVisor — Top应用' } },
