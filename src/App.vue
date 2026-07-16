@@ -1,5 +1,8 @@
 <template>
-  <el-container class="layout-root" direction="vertical">
+  <template v-if="isStandalone">
+    <router-view />
+  </template>
+  <el-container v-else class="layout-root" direction="vertical">
     <!-- ── Top Header (blue gradient) ─────────────────────────────────── -->
     <header class="app-header">
       <div class="header-brand">
@@ -30,13 +33,13 @@
           <span>AI Bit</span>
         </el-menu-item>
 
-        <!-- 2. 流量概况 -->
+        <!-- 2. 网络概况 -->
         <el-sub-menu index="nv-overview">
           <template #title>
             <el-icon><DataLine /></el-icon>
-            <span>流量概况</span>
+            <span>网络概况</span>
           </template>
-          <el-menu-item index="/nv/traffic-overview">流量总览</el-menu-item>
+          <el-menu-item index="/nv/traffic-overview">网络概况</el-menu-item>
           <el-menu-item index="/nv/system-info">系统信息</el-menu-item>
           <el-menu-item index="/nv/online-users">在线用户</el-menu-item>
           <el-menu-item index="/nv/top-apps">Top应用</el-menu-item>
@@ -243,6 +246,7 @@ import ConnectionBadge from '@/components/ConnectionBadge.vue'
 
 const route = useRoute()
 
+const isStandalone = computed(() => route.meta.standalone === true)
 const activeRoute = computed(() => route.path)
 const pageTitle = computed(() => (route.meta?.title as string) ?? '')
 
