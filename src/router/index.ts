@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿import { createRouter, createWebHashHistory } from 'vue-router'
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿import { createRouter, createWebHashHistory } from 'vue-router'
 
 // Routes are lazy-loaded so the initial bundle stays small.
 const router = createRouter({
