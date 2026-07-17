@@ -565,7 +565,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import * as echarts from 'echarts'
+import { mockDomainTrendActive, mockDomainTrendRequest } from './mock-data'
 
 const activeTab = ref('realtime')
 
@@ -602,6 +604,96 @@ const trendLinkType = ref('all')
 // 图表引用
 const activeDomainChartRef = ref<HTMLElement | null>(null)
 const domainRequestChartRef = ref<HTMLElement | null>(null)
+
+// ECharts 实例管理
+const charts: Map<string, echarts.ECharts> = new Map()
+
+function getChart(id: string, container: HTMLElement, baseOption: any): echarts.ECharts {
+  let c = charts.get(id)
+  if (!c) {
+    c = echarts.init(container)
+    c.setOption(baseOption)
+    charts.set(id, c)
+  }
+  return c
+}
+
+function renderActiveDomainChart() {
+  const container = activeDomainChartRef.value
+  if (!container) return
+
+  const data = activeDomainData.value
+  const chart = getChart('activeDomain', container, {
+    tooltip: { trigger: 'axis' },
+    grid: { left: 60, right: 20, top: 20, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      data: data.timePoints,
+      axisLabel: { fontSize: 10, interval: Math.floor(data.timePoints.length / 6) }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { fontSize: 10 },
+      splitLine: { lineStyle: { type: 'dashed' } }
+    },
+    series: [{
+      type: 'line',
+      data: data.values,
+      smooth: true,
+      symbol: 'none',
+      areaStyle: { opacity: 0.3, color: '#409eff' },
+      itemStyle: { color: '#409eff' },
+      lineStyle: { width: 2 }
+    }]
+  })
+
+  chart.setOption({
+    series: [{ data: data.values }]
+  })
+}
+
+function renderDomainRequestChart() {
+  const container = domainRequestChartRef.value
+  if (!container) return
+
+  const data = domainRequestData.value
+  const colors = ['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399', '#b37feb']
+  const series = Object.keys(data.seriesData).map((key, index) => ({
+    name: key,
+    type: 'line',
+    data: data.seriesData[key],
+    smooth: true,
+    symbol: 'none',
+    areaStyle: { opacity: 0.1, color: colors[index] },
+    itemStyle: { color: colors[index] },
+    lineStyle: { width: 1.5 }
+  }))
+
+  const chart = getChart('domainRequest', container, {
+    tooltip: { trigger: 'axis' },
+    legend: { top: 0, textStyle: { fontSize: 10 } },
+    grid: { left: 60, right: 20, top: 30, bottom: 30 },
+    xAxis: {
+      type: 'category',
+      data: data.timePoints,
+      axisLabel: { fontSize: 10, interval: Math.floor(data.timePoints.length / 6) }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { fontSize: 10 },
+      splitLine: { lineStyle: { type: 'dashed' } }
+    },
+    series: series
+  })
+
+  chart.setOption({
+    series: series
+  })
+}
+
+function handleResize() {
+  charts.forEach(c => c.resize())
+}
 
 // 活跃域名数据
 const activeDomainData = computed(() => {
@@ -988,55 +1080,12 @@ function handleTrendReset() {
 
 // 生成活跃域名数据
 function generateActiveDomainData() {
-  const timePoints = []
-  const values = []
-  let baseValue = 4200
-
-  for (let i = 0; i < 24; i++) {
-    const hour = Math.floor(i / 2)
-    const minute = (i % 2) * 30
-    timePoints.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
-
-    if (i >= 10 && i <= 14) {
-      baseValue += (Math.random() - 0.3) * 300
-    } else if (i >= 18 && i <= 20) {
-      baseValue += (Math.random() - 0.3) * 250
-    } else {
-      baseValue += (Math.random() - 0.5) * 100
-    }
-
-    values.push(Math.max(3800, Math.min(5500, Math.round(baseValue))))
-  }
-
-  return { timePoints, values }
+  return mockDomainTrendActive()
 }
 
 // 生成域名请求数据
 function generateDomainRequestData() {
-  const timePoints = []
-  const seriesData: Record<string, number[]> = {
-    dns: [],
-    https: [],
-    http2xx: [],
-    http3xx: [],
-    http4xx: [],
-    http5xx: []
-  }
-
-  for (let i = 0; i < 24; i++) {
-    const hour = Math.floor(i / 2)
-    const minute = (i % 2) * 30
-    timePoints.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
-
-    seriesData.dns.push(Math.floor(Math.random() * 50000) + 350000)
-    seriesData.https.push(Math.floor(Math.random() * 100000) + 200000)
-    seriesData.http2xx.push(Math.floor(Math.random() * 80000) + 150000)
-    seriesData.http3xx.push(Math.floor(Math.random() * 60000) + 120000)
-    seriesData.http4xx.push(Math.floor(Math.random() * 40000) + 90000)
-    seriesData.http5xx.push(Math.floor(Math.random() * 20000) + 45000)
-  }
-
-  return { timePoints, seriesData }
+  return mockDomainTrendRequest()
 }
 
 // 历史请求事件处理函数
@@ -1051,16 +1100,37 @@ function jumpToHistoryPage() {
 
 let timer: any = null
 
+watch(activeTab, async (newVal) => {
+  if (newVal === 'trend') {
+    await nextTick()
+    renderActiveDomainChart()
+    renderDomainRequestChart()
+  }
+})
+
 onMounted(() => {
+  window.addEventListener('resize', handleResize)
+
   if (refreshInterval.value !== '0') {
     timer = setInterval(() => {
       console.log('自动刷新域名数据')
     }, parseInt(refreshInterval.value) * 1000)
   }
+
+  // 如果当前就在趋势tab，立即渲染
+  if (activeTab.value === 'trend') {
+    nextTick(() => {
+      renderActiveDomainChart()
+      renderDomainRequestChart()
+    })
+  }
 })
 
 onBeforeUnmount(() => {
   if (timer) clearInterval(timer)
+  window.removeEventListener('resize', handleResize)
+  charts.forEach(c => c.dispose())
+  charts.clear()
 })
 </script>
 

@@ -500,3 +500,62 @@ export function mockTopDomains(): Array<{
   ]
   return domains
 }
+
+// ── 10. 域名趋势 - 活跃域名个数 (domainTrendActive) ──
+export function mockDomainTrendActive(): {
+  timePoints: string[]
+  values: number[]
+} {
+  const timePoints: string[] = []
+  const values: number[] = []
+  let baseValue = 4200
+  const rng = seededRandom(timeSeed(200))
+
+  for (let i = 0; i < 24; i++) {
+    const hour = Math.floor(i / 2)
+    const minute = (i % 2) * 30
+    timePoints.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
+
+    if (i >= 10 && i <= 14) {
+      baseValue += (rng() - 0.5) * 200
+    } else {
+      baseValue += (rng() - 0.5) * 100
+    }
+
+    values.push(Math.max(3800, Math.min(5500, Math.round(baseValue))))
+  }
+
+  return { timePoints, values }
+}
+
+// ── 11. 域名趋势 - 域名请求数 (domainTrendRequest) ──
+export function mockDomainTrendRequest(): {
+  timePoints: string[]
+  seriesData: Record<string, number[]>
+} {
+  const timePoints: string[] = []
+  const seriesData: Record<string, number[]> = {
+    dns: [],
+    https: [],
+    http2xx: [],
+    http3xx: [],
+    http4xx: [],
+    http5xx: []
+  }
+  const rng = seededRandom(timeSeed(201))
+
+  for (let i = 0; i < 24; i++) {
+    const hour = Math.floor(i / 2)
+    const minute = (i % 2) * 30
+    timePoints.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
+
+    seriesData.dns.push(Math.floor(rng() * 50000) + 350000)
+    seriesData.https.push(Math.floor(rng() * 100000) + 200000)
+    seriesData.http2xx.push(Math.floor(rng() * 80000) + 150000)
+    seriesData.http3xx.push(Math.floor(rng() * 60000) + 120000)
+    seriesData.http4xx.push(Math.floor(rng() * 40000) + 90000)
+    seriesData.http5xx.push(Math.floor(rng() * 20000) + 45000)
+  }
+
+  return { timePoints, seriesData }
+}
