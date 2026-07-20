@@ -1,7 +1,7 @@
-﻿import { createRouter, createWebHashHistory } from 'vue-router'
+﻿﻿import { createRouter, createWebHashHistory } from 'vue-router'
 
 // Routes are lazy-loaded so the initial bundle stays small.
-const router = createRouter({
+const router = createRouter({ 
   history: createWebHashHistory(),
   routes: [
     // ── 1. 首页重定向到 NetVisor 流量总览 ───────────────────────────
@@ -222,6 +222,7 @@ const router = createRouter({
     { path: '/nv/pq-session-latency', name: 'nv-pq-session-latency', component: () => import('@/views/netvisor/PqSessionLatencyView.vue'), meta: { title: 'NetVisor — 会话时延' } },
     { path: '/nv/pq-protocol-latency', name: 'nv-pq-protocol-latency', component: () => import('@/views/netvisor/PqProtocolLatencyView.vue'), meta: { title: 'NetVisor — 协议时延' } },
     { path: '/nv/pq-retransmission', name: 'nv-pq-retransmission', component: () => import('@/views/netvisor/PqRetransmissionView.vue'), meta: { title: 'NetVisor — 协议重传' } },
+    { path: '/nv/pq-retransmission-popup', name: 'nv-pq-retransmission-popup', component: () => import('@/views/netvisor/PqRetransmissionPopupView.vue'), meta: { title: '协议重传' } },
     { path: '/nv/pq-segment-latency', name: 'nv-pq-segment-latency', component: () => import('@/views/netvisor/PqSegmentLatencyView.vue'), meta: { title: 'NetVisor — 分段时延' } },
     { path: '/nv/pq-whitelist', name: 'nv-pq-whitelist', component: () => import('@/views/netvisor/PqWhitelistView.vue'), meta: { title: 'NetVisor — 质量白名单' } },
     // 流量分析

@@ -103,7 +103,6 @@
           <el-menu-item index="/nv/pq-retransmission">协议重传</el-menu-item>
           <el-menu-item index="/nv/pq-segment-latency">分段时延</el-menu-item>
           <el-menu-item index="/nv/pq-whitelist">质量白名单</el-menu-item>
-          <el-menu-item index="/nv/pq-layer-stats">分层统计</el-menu-item>
         </el-sub-menu>
 
         <!-- 7. 溯源分析 -->

@@ -510,135 +510,33 @@
           </div>
         </div>
 
-        <!-- 三列表格区域 -->
+        <!-- 三列柱状图区域 -->
         <div class="db-hov-table-grid">
-          <!-- 源IP 表格 -->
+          <!-- 源IP 柱状图 -->
           <div class="db-hov-table-panel">
-            <table class="ou-table audit-table" style="margin:0">
-              <thead>
-                <tr>
-                  <th style="width:40px">序号</th>
-                  <th>源IP <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>总数 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>查询 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>更新 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>删除 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>插入 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>创建 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>加载 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, idx) in hovSrcIpData" :key="idx">
-                  <td>{{ idx + 1 }}</td>
-                  <td><span class="tid-link" @click="openHovDetailPopup(row.ip, 'src')">{{ row.ip }}</span></td>
-                  <td class="ou-num">{{ row.total }}</td>
-                  <td class="ou-num" style="color:#409eff">{{ row.query }}</td>
-                  <td class="ou-num" style="color:#67c23a">{{ row.update }}</td>
-                  <td class="ou-num" style="color:#f56c6c">{{ row.delete }}</td>
-                  <td class="ou-num" style="color:#e6a23c">{{ row.insert }}</td>
-                  <td class="ou-num">{{ row.create }}</td>
-                  <td class="ou-num">{{ row.load }}</td>
-                </tr>
-                <tr v-if="hovSrcIpData.length === 0">
-                  <td colspan="9" class="ou-empty">无数据</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="ou-footer" style="margin-top:8px">
-              <div class="ou-pager">
-                <button class="ou-page-btn" @click="hovSrcIpPage > 1 && hovSrcIpPage--">‹</button>
-                <button class="ou-page-btn active">1</button>
-                <button class="ou-page-btn" @click="hovSrcIpPage < hovSrcIpPages && hovSrcIpPage++">›</button>
-              </div>
-              <span style="font-size:12px;color:#909399">共 {{ hovSrcIpData.length }} 条</span>
+            <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:8px;display:flex;align-items:center">
+              <el-icon style="margin-right:4px;color:#409eff"><DataAnalysis /></el-icon>
+              源IP
             </div>
+            <v-chart :option="hovSrcIpChartOption" autoresize style="width:100%;height:320px" @click="handleHovChartClick($event, 'src')" />
           </div>
 
-          <!-- 目标IP 表格 -->
+          <!-- 目标IP 柱状图 -->
           <div class="db-hov-table-panel">
-            <table class="ou-table audit-table" style="margin:0">
-              <thead>
-                <tr>
-                  <th style="width:40px">序号</th>
-                  <th>目标IP <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>总数 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>查询 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>更新 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>删除 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>插入 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>创建 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>加载 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, idx) in hovDstIpData" :key="idx">
-                  <td>{{ idx + 1 }}</td>
-                  <td><span class="tid-link" @click="openHovDetailPopup(row.ip, 'dst')">{{ row.ip }}</span></td>
-                  <td class="ou-num">{{ row.total }}</td>
-                  <td class="ou-num" style="color:#409eff">{{ row.query }}</td>
-                  <td class="ou-num" style="color:#67c23a">{{ row.update }}</td>
-                  <td class="ou-num" style="color:#f56c6c">{{ row.delete }}</td>
-                  <td class="ou-num" style="color:#e6a23c">{{ row.insert }}</td>
-                  <td class="ou-num">{{ row.create }}</td>
-                  <td class="ou-num">{{ row.load }}</td>
-                </tr>
-                <tr v-if="hovDstIpData.length === 0">
-                  <td colspan="9" class="ou-empty">无数据</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="ou-footer" style="margin-top:8px">
-              <div class="ou-pager">
-                <button class="ou-page-btn" @click="hovDstIpPage > 1 && hovDstIpPage--">‹</button>
-                <button class="ou-page-btn active">1</button>
-                <button class="ou-page-btn" @click="hovDstIpPage < hovDstIpPages && hovDstIpPage++">›</button>
-              </div>
-              <span style="font-size:12px;color:#909399">共 {{ hovDstIpData.length }} 条</span>
+            <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:8px;display:flex;align-items:center">
+              <el-icon style="margin-right:4px;color:#409eff"><DataAnalysis /></el-icon>
+              目标IP
             </div>
+            <v-chart :option="hovDstIpChartOption" autoresize style="width:100%;height:320px" @click="handleHovChartClick($event, 'dst')" />
           </div>
 
-          <!-- 用户名 表格 -->
+          <!-- 用户名 柱状图 -->
           <div class="db-hov-table-panel">
-            <table class="ou-table audit-table" style="margin:0">
-              <thead>
-                <tr>
-                  <th style="width:40px">序号</th>
-                  <th>用户名 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>总数 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>查询 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>更新 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>删除 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>插入 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>创建 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                  <th>加载 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, idx) in hovUserData" :key="idx">
-                  <td>{{ idx + 1 }}</td>
-                  <td>{{ row.userName }}</td>
-                  <td class="ou-num">{{ row.total }}</td>
-                  <td class="ou-num" style="color:#409eff">{{ row.query }}</td>
-                  <td class="ou-num" style="color:#67c23a">{{ row.update }}</td>
-                  <td class="ou-num" style="color:#f56c6c">{{ row.delete }}</td>
-                  <td class="ou-num" style="color:#e6a23c">{{ row.insert }}</td>
-                  <td class="ou-num">{{ row.create }}</td>
-                  <td class="ou-num">{{ row.load }}</td>
-                </tr>
-                <tr v-if="hovUserData.length === 0">
-                  <td colspan="9" class="ou-empty">无数据</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="ou-footer" style="margin-top:8px">
-              <div class="ou-pager">
-                <button class="ou-page-btn" @click="hovUserPage > 1 && hovUserPage--">‹</button>
-                <button class="ou-page-btn active">1</button>
-                <button class="ou-page-btn" @click="hovUserPage < hovUserPages && hovUserPage++">›</button>
-              </div>
-              <span style="font-size:12px;color:#909399">共 {{ hovUserData.length }} 条</span>
+            <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:8px;display:flex;align-items:center">
+              <el-icon style="margin-right:4px;color:#409eff"><DataAnalysis /></el-icon>
+              用户名
             </div>
+            <v-chart :option="hovUserChartOption" autoresize style="width:100%;height:320px" @click="handleHovChartClick($event, 'user')" />
           </div>
         </div>
       </div>
@@ -888,209 +786,68 @@
     <el-dialog v-model="hovDetailVisible" width="95%" top="2vh" destroy-on-close class="hov-detail-dialog">
       <template #header>
         <div class="hov-detail-header">
-          <span class="hov-detail-title">数据库审计->历史概况</span>
+          <span class="hov-detail-title">数据库审计->历史概况 -> {{ hovDetailTitle }}</span>
         </div>
       </template>
 
-      <!-- 筛选区域 -->
-      <div class="tdh-filters" style="padding:12px">
-        <div class="tdh-filter-row">
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">MAC</span>
-            <select class="ou-toolbar-select" v-model="hovDetailFilter.mac">
-              <option value="">任意</option>
-            </select>
-          </label>
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">源IP</span>
-            <select class="ou-toolbar-select" v-model="hovDetailFilter.srcIpType">
-              <option value="any">任意IP</option>
-              <option value="single">单个IP</option>
-              <option value="range">IP范围</option>
-            </select>
-          </label>
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">源端口</span>
-            <input class="ou-toolbar-input tdh-filter-input" v-model="hovDetailFilter.srcPort" placeholder="80 / 8000-8080" />
-          </label>
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">目标IP</span>
-            <select class="ou-toolbar-select" v-model="hovDetailFilter.dstIpType">
-              <option value="any">任意IP</option>
-              <option value="single">单个IP</option>
-              <option value="range">IP范围</option>
-            </select>
-          </label>
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">目标端口</span>
-            <input class="ou-toolbar-input tdh-filter-input" v-model="hovDetailFilter.dstPort" placeholder="80 / 8000-8080" />
-          </label>
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">用户名</span>
-            <input class="ou-toolbar-input tdh-filter-input" v-model="hovDetailFilter.userName" placeholder="" />
-          </label>
+      <!-- 上半部分：SQL命令饼图 + 执行数趋势图 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 12px 12px">
+        <div style="background:#fff;border:1px solid #e4e7ed;border-radius:4px;padding:12px">
+          <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:8px">
+            <el-icon style="margin-right:4px"><DataAnalysis /></el-icon>SQL命令
+          </div>
+          <v-chart :option="hovDetailSqlCmdPieOption" autoresize style="width:100%;height:240px" />
         </div>
-        <div class="tdh-filter-row">
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">用户组</span>
-            <select class="ou-toolbar-select" v-model="hovDetailFilter.userGroup">
-              <option value="">任意</option>
-            </select>
-          </label>
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">用户名称</span>
-            <input class="ou-toolbar-input tdh-filter-input" v-model="hovDetailFilter.displayName" placeholder="" />
-          </label>
-          <label class="tdh-filter-field">
-            <span class="ou-toolbar-label">SQL命令</span>
-            <select class="ou-toolbar-select" v-model="hovDetailFilter.sqlCmd">
-              <option value="">任意</option>
-              <option value="SELECT">SELECT</option>
-              <option value="INSERT">INSERT</option>
-              <option value="UPDATE">UPDATE</option>
-              <option value="DELETE">DELETE</option>
-              <option value="SET">SET</option>
-            </select>
-          </label>
-          <label class="tdh-filter-field tdh-filter-time">
-            <span class="ou-toolbar-label">时间范围</span>
-            <input class="ou-toolbar-input tdh-time-range" v-model="hovDetailFilter.timeRange" />
-          </label>
-          <button class="ou-search-btn" @click="doHovDetailSearch">
-            <el-icon><Search /></el-icon>
-          </button>
-          <button class="secondary td-reset-btn" @click="resetHovDetailFilters">重置</button>
+        <div style="background:#fff;border:1px solid #e4e7ed;border-radius:4px;padding:12px">
+          <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:8px">
+            <el-icon style="margin-right:4px"><DataAnalysis /></el-icon>执行数趋势图
+          </div>
+          <v-chart :option="hovDetailExecTrendOption" autoresize style="width:100%;height:240px" />
         </div>
       </div>
 
-      <!-- 三列表格区域 -->
-      <div class="db-hov-table-grid">
-        <!-- 源IP 表格 -->
-        <div class="db-hov-table-panel">
-          <table class="ou-table audit-table" style="margin:0">
-            <thead>
-              <tr>
-                <th style="width:40px">序号</th>
-                <th>源IP <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>总数 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>查询 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>更新 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>删除 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>插入 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>创建 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>加载 <el-icon class="sort-icon"><Sort /></el-icon></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, idx) in hovDetailSrcIpData" :key="idx">
-                <td>{{ idx + 1 }}</td>
-                <td><span class="tid-link" @click="openSessionDiagPopup(row.ip, 'src')">{{ row.ip }}</span></td>
-                <td class="ou-num">{{ row.total }}</td>
-                <td class="ou-num" style="color:#409eff">{{ row.query }}</td>
-                <td class="ou-num" style="color:#67c23a">{{ row.update }}</td>
-                <td class="ou-num" style="color:#f56c6c">{{ row.delete }}</td>
-                <td class="ou-num" style="color:#e6a23c">{{ row.insert }}</td>
-                <td class="ou-num">{{ row.create }}</td>
-                <td class="ou-num">{{ row.load }}</td>
-              </tr>
-              <tr v-if="hovDetailSrcIpData.length === 0">
-                <td colspan="9" class="ou-empty">无数据</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="ou-footer" style="margin-top:8px">
-            <div class="ou-pager">
-              <button class="ou-page-btn" @click="hovDetailSrcIpPage > 1 && hovDetailSrcIpPage--">‹</button>
-              <button class="ou-page-btn active">1</button>
-              <button class="ou-page-btn" @click="hovDetailSrcIpPage < hovDetailSrcIpPages && hovDetailSrcIpPage++">›</button>
-            </div>
-            <span style="font-size:12px;color:#909399">共 {{ hovDetailSrcIpData.length }} 条</span>
+      <!-- 下半部分：访问会话数趋势图 + 表格 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 12px 12px">
+        <div style="background:#fff;border:1px solid #e4e7ed;border-radius:4px;padding:12px">
+          <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:8px">
+            <el-icon style="margin-right:4px"><DataAnalysis /></el-icon>访问会话数趋势图
           </div>
+          <v-chart :option="hovDetailSessionTrendOption" autoresize style="width:100%;height:240px" />
         </div>
-
-        <!-- 目标IP 表格 -->
-        <div class="db-hov-table-panel">
-          <table class="ou-table audit-table" style="margin:0">
-            <thead>
-              <tr>
-                <th style="width:40px">序号</th>
-                <th>目标IP <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>总数 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>查询 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>更新 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>删除 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>插入 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>创建 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>加载 <el-icon class="sort-icon"><Sort /></el-icon></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, idx) in hovDetailDstIpData" :key="idx">
-                <td>{{ idx + 1 }}</td>
-                <td><span class="tid-link" @click="openSessionDiagPopup(row.ip, 'dst')">{{ row.ip }}</span></td>
-                <td class="ou-num">{{ row.total }}</td>
-                <td class="ou-num" style="color:#409eff">{{ row.query }}</td>
-                <td class="ou-num" style="color:#67c23a">{{ row.update }}</td>
-                <td class="ou-num" style="color:#f56c6c">{{ row.delete }}</td>
-                <td class="ou-num" style="color:#e6a23c">{{ row.insert }}</td>
-                <td class="ou-num">{{ row.create }}</td>
-                <td class="ou-num">{{ row.load }}</td>
-              </tr>
-              <tr v-if="hovDetailDstIpData.length === 0">
-                <td colspan="9" class="ou-empty">无数据</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="ou-footer" style="margin-top:8px">
-            <div class="ou-pager">
-              <button class="ou-page-btn" @click="hovDetailDstIpPage > 1 && hovDetailDstIpPage--">‹</button>
-              <button class="ou-page-btn active">1</button>
-              <button class="ou-page-btn" @click="hovDetailDstIpPage < hovDetailDstIpPages && hovDetailDstIpPage++">›</button>
-            </div>
-            <span style="font-size:12px;color:#909399">共 {{ hovDetailDstIpData.length }} 条</span>
-          </div>
-        </div>
-
-        <!-- 用户名 表格 -->
-        <div class="db-hov-table-panel">
-          <table class="ou-table audit-table" style="margin:0">
-            <thead>
-              <tr>
-                <th style="width:40px">序号</th>
-                <th>用户名 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>总数 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>查询 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>更新 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>删除 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>插入 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>创建 <el-icon class="sort-icon"><Sort /></el-icon></th>
-                <th>加载 <el-icon class="sort-icon"><Sort /></el-icon></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, idx) in hovDetailUserData" :key="idx">
-                <td>{{ idx + 1 }}</td>
-                <td>{{ row.userName }}</td>
-                <td class="ou-num">{{ row.total }}</td>
-                <td class="ou-num" style="color:#409eff">{{ row.query }}</td>
-                <td class="ou-num" style="color:#67c23a">{{ row.update }}</td>
-                <td class="ou-num" style="color:#f56c6c">{{ row.delete }}</td>
-                <td class="ou-num" style="color:#e6a23c">{{ row.insert }}</td>
-                <td class="ou-num">{{ row.create }}</td>
-                <td class="ou-num">{{ row.load }}</td>
-              </tr>
-              <tr v-if="hovDetailUserData.length === 0">
-                <td colspan="9" class="ou-empty">无数据</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="ou-footer" style="margin-top:8px">
-            <div class="ou-pager">
-              <button class="ou-page-btn" @click="hovDetailUserPage > 1 && hovDetailUserPage--">‹</button>
-              <button class="ou-page-btn active">1</button>
-              <button class="ou-page-btn" @click="hovDetailUserPage < hovDetailUserPages && hovDetailUserPage++">›</button>
-            </div>
-            <span style="font-size:12px;color:#909399">共 {{ hovDetailUserData.length }} 条</span>
+        <div style="background:#fff;border:1px solid #e4e7ed;border-radius:4px;padding:12px;display:flex;flex-direction:column">
+          <div style="font-size:13px;font-weight:600;color:#303133;margin-bottom:8px">详细数据</div>
+          <div class="ou-table-wrap" style="flex:1;min-height:0">
+            <table class="ou-table audit-table" style="margin:0">
+              <thead>
+                <tr>
+                  <th style="width:40px">序号</th>
+                  <th>目标IP <el-icon class="sort-icon"><Sort /></el-icon></th>
+                  <th>总数 <el-icon class="sort-icon"><Sort /></el-icon></th>
+                  <th>查询 <el-icon class="sort-icon"><Sort /></el-icon></th>
+                  <th>更新 <el-icon class="sort-icon"><Sort /></el-icon></th>
+                  <th>删除 <el-icon class="sort-icon"><Sort /></el-icon></th>
+                  <th>插入 <el-icon class="sort-icon"><Sort /></el-icon></th>
+                  <th>创建 <el-icon class="sort-icon"><Sort /></el-icon></th>
+                  <th>加载 <el-icon class="sort-icon"><Sort /></el-icon></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(row, idx) in hovDetailTableData" :key="idx">
+                  <td>{{ idx + 1 }}</td>
+                  <td><span class="tid-link">{{ row.ip }}</span></td>
+                  <td class="ou-num">{{ row.total }}</td>
+                  <td class="ou-num" style="color:#409eff">{{ row.query }}</td>
+                  <td class="ou-num" style="color:#67c23a">{{ row.update }}</td>
+                  <td class="ou-num" style="color:#f56c6c">{{ row.delete }}</td>
+                  <td class="ou-num" style="color:#e6a23c">{{ row.insert }}</td>
+                  <td class="ou-num">{{ row.create }}</td>
+                  <td class="ou-num">{{ row.load }}</td>
+                </tr>
+                <tr v-if="hovDetailTableData.length === 0">
+                  <td colspan="9" class="ou-empty">无数据</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1892,6 +1649,10 @@ interface HovRow {
   update: number; delete: number; insert: number; create: number; load: number
 }
 
+// ── 历史概况详情弹窗 ──
+const hovDetailVisible = ref(false)
+const hovDetailTitle = ref<string>('')
+
 const hovSrcIpData = ref<HovRow[]>([
   { ip: '101.6.6.2', userName: '', total: 1088, query: 1412, update: 0, delete: 0, insert: 0, create: 0, load: 0 },
   { ip: '166.111.4.77', userName: '', total: 43, query: 37, update: 0, delete: 0, insert: 0, create: 0, load: 0 },
@@ -2238,44 +1999,142 @@ function downloadPacketFromPopup() { ElMessage.info('报文下载功能（Mock�
 function downloadContentFromPopup() { ElMessage.info('内容下载功能（Mock）') }
 function startPacketPlayback() { ElMessage.info(`开始播放：网卡 ${playNic.value}，次数 ${playCount.value}，速度 ${playSpeed.value}x（Mock）`) }
 
-// ── 历史概况详情弹窗 ──
-const hovDetailVisible = ref(false)
-const hovDetailFilter = reactive({
-  mac: '', srcIpType: 'any', srcPort: '', dstIpType: 'any', dstPort: '',
-  userName: '', userGroup: '', displayName: '', sqlCmd: '',
-  timeRange: '2026-07-15 09:28:54 - 2026-07-15 09:43:54'
+// ── 历史概况 - 柱状图选项 ──
+const hovSrcIpChartOption = ref({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: 100, right: 20, top: 10, bottom: 30 },
+  xAxis: { type: 'value', axisLabel: { fontSize: 10 } },
+  yAxis: {
+    type: 'category',
+    data: hovSrcIpData.value.map(r => r.ip),
+    axisLabel: { fontSize: 10, width: 90, overflow: 'truncate' },
+    inverse: true,
+  },
+  series: [{
+    type: 'bar',
+    data: hovSrcIpData.value.map(r => r.total),
+    itemStyle: { color: '#409eff', borderRadius: [0, 2, 2, 0] },
+    barMaxWidth: 20,
+  }],
 })
 
-const hovDetailSrcIpData = ref<HovRow[]>([
-  { ip: '101.6.10.19', userName: '', total: 937, query: 909, update: 10, delete: 0, insert: 4, create: 0, load: 0 },
-])
+const hovDstIpChartOption = ref({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: 100, right: 20, top: 10, bottom: 30 },
+  xAxis: { type: 'value', axisLabel: { fontSize: 10 } },
+  yAxis: {
+    type: 'category',
+    data: hovDstIpData.value.map(r => r.ip),
+    axisLabel: { fontSize: 10, width: 90, overflow: 'truncate' },
+    inverse: true,
+  },
+  series: [{
+    type: 'bar',
+    data: hovDstIpData.value.map(r => r.total),
+    itemStyle: { color: '#67c23a', borderRadius: [0, 2, 2, 0] },
+    barMaxWidth: 20,
+  }],
+})
 
-const hovDetailDstIpData = ref<HovRow[]>([
-  { ip: '101.6.215.38', userName: '', total: 937, query: 909, update: 10, delete: 0, insert: 4, create: 0, load: 0 },
-])
+const hovUserChartOption = ref({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: 100, right: 20, top: 10, bottom: 30 },
+  xAxis: { type: 'value', axisLabel: { fontSize: 10 } },
+  yAxis: {
+    type: 'category',
+    data: hovUserData.value.map(r => r.userName),
+    axisLabel: { fontSize: 10, width: 90, overflow: 'truncate' },
+    inverse: true,
+  },
+  series: [{
+    type: 'bar',
+    data: hovUserData.value.map(r => r.total),
+    itemStyle: { color: '#e6a23c', borderRadius: [0, 2, 2, 0] },
+    barMaxWidth: 20,
+  }],
+})
 
-const hovDetailUserData = ref<HovRow[]>([
-  { ip: '', userName: 'root', total: 937, query: 909, update: 10, delete: 0, insert: 4, create: 0, load: 0 },
-])
-
-const hovDetailSrcIpPage = ref(1)
-const hovDetailSrcIpPages = ref(1)
-const hovDetailDstIpPage = ref(1)
-const hovDetailDstIpPages = ref(1)
-const hovDetailUserPage = ref(1)
-const hovDetailUserPages = ref(1)
-
-function openHovDetailPopup(ip: string, type: 'src' | 'dst') {
+function handleHovChartClick(params: any, type: 'src' | 'dst' | 'user') {
+  if (type === 'src') {
+    hovDetailTitle.value = '源IP: ' + (hovSrcIpData.value[params.dataIndex]?.ip ?? '')
+  } else if (type === 'dst') {
+    hovDetailTitle.value = '目标IP: ' + (hovDstIpData.value[params.dataIndex]?.ip ?? '')
+  } else {
+    hovDetailTitle.value = '用户名: ' + (hovUserData.value[params.dataIndex]?.userName ?? '')
+  }
   hovDetailVisible.value = true
 }
 
-function doHovDetailSearch() { ElMessage.success('搜索完成（Mock）') }
-function resetHovDetailFilters() {
-  hovDetailFilter.mac = ''; hovDetailFilter.srcIpType = 'any'; hovDetailFilter.srcPort = ''
-  hovDetailFilter.dstIpType = 'any'; hovDetailFilter.dstPort = ''; hovDetailFilter.userName = ''
-  hovDetailFilter.userGroup = ''; hovDetailFilter.displayName = ''; hovDetailFilter.sqlCmd = ''
-  hovDetailFilter.timeRange = '2026-07-15 09:28:54 - 2026-07-15 09:43:54'
+// ── 历史概况详情弹窗 - 图表选项 ──
+const hovDetailSqlCmdPieOption = ref({
+  tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+  legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 11 } },
+  series: [{
+    type: 'pie',
+    radius: ['40%', '70%'],
+    center: ['35%', '50%'],
+    label: { show: true, fontSize: 11, formatter: '{b}\n{d}%' },
+    data: [
+      { value: 1412, name: 'SELECT', itemStyle: { color: '#409eff' } },
+      { value: 205, name: 'INSERT', itemStyle: { color: '#67c23a' } },
+      { value: 76, name: 'UPDATE', itemStyle: { color: '#e6a23c' } },
+      { value: 55, name: 'DELETE', itemStyle: { color: '#f56c6c' } },
+      { value: 152, name: 'CREATE', itemStyle: { color: '#909399' } },
+    ],
+  }],
+})
+
+const hovDetailExecTrendOption = ref({
+  tooltip: { trigger: 'axis' },
+  grid: { left: 50, right: 20, top: 20, bottom: 30 },
+  xAxis: {
+    type: 'category',
+    data: ['07-10', '07-11', '07-12', '07-13', '07-14', '07-15', '07-16'],
+    axisLabel: { fontSize: 10 },
+  },
+  yAxis: { type: 'value', name: '次数' },
+  series: [{
+    name: '执行数',
+    type: 'line',
+    smooth: true,
+    data: [1200, 1350, 980, 1580, 1420, 1100, 890],
+    itemStyle: { color: '#409eff' },
+    areaStyle: { color: 'rgba(64,158,255,0.1)' },
+  }],
+})
+
+const hovDetailSessionTrendOption = ref({
+  tooltip: { trigger: 'axis' },
+  grid: { left: 50, right: 20, top: 20, bottom: 30 },
+  xAxis: {
+    type: 'category',
+    data: ['07-10', '07-11', '07-12', '07-13', '07-14', '07-15', '07-16'],
+    axisLabel: { fontSize: 10 },
+  },
+  yAxis: { type: 'value', name: '会话数' },
+  series: [{
+    name: '会话数',
+    type: 'line',
+    smooth: true,
+    data: [85, 92, 78, 105, 98, 88, 72],
+    itemStyle: { color: '#67c23a' },
+    areaStyle: { color: 'rgba(103,194,58,0.1)' },
+  }],
+})
+
+// ── 历史概况详情弹窗 - 表格数据 ──
+interface HovDetailRow {
+  ip: string; total: number; query: number; update: number
+  delete: number; insert: number; create: number; load: number
 }
+
+const hovDetailTableData = ref<HovDetailRow[]>([
+  { ip: '140.179.3.145', total: 1088, query: 1412, update: 0, delete: 0, insert: 0, create: 0, load: 0 },
+  { ip: '39.103.11.249', total: 937, query: 909, update: 10, delete: 0, insert: 4, create: 0, load: 0 },
+  { ip: '35.103.11.245', total: 2316, query: 1453, update: 0, delete: 0, insert: 76, create: 152, load: 0 },
+  { ip: '166.111.121.165', total: 43, query: 37, update: 0, delete: 0, insert: 0, create: 0, load: 0 },
+  { ip: '101.6.215.38', total: 234, query: 198, update: 5, delete: 0, insert: 12, create: 8, load: 0 },
+])
 </script>
 
 <style scoped>
